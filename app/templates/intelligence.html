@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>海洋管理系统 - 智能中心</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- 侧边导航栏 -->
+            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-dark sidebar collapse">
+                <div class="position-sticky pt-3">
+                    <div class="text-center mb-4">
+                        <h5 class="text-white">海洋管理系统</h5>
+                        <p class="text-white-50" id="userInfo">欢迎，<span id="currentUser">用户</span></p>
+                    </div>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="dashboard.html">
+                                <i class="bi bi-speedometer2 me-2"></i>主要信息
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="underwater.html">
+                                <i class="bi bi-water me-2"></i>水下系统
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active text-white" href="intelligence.html">
+                                <i class="bi bi-cpu me-2"></i>智能中心
+                            </a>
+                        </li>
+                        <li class="nav-item" id="adminLink" style="display: none;">
+                            <a class="nav-link text-white" href="admin.html">
+                                <i class="bi bi-gear me-2"></i>管理员管理
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="datacenter.html">
+                                <i class="bi bi-database me-2"></i>数据中心
+                            </a>
+                        </li>
+                        <li class="nav-item mt-5">
+                            <a class="nav-link text-white" href="#" id="logoutBtn">
+                                <i class="bi bi-box-arrow-right me-2"></i>退出登录
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- 主内容区域 -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div
+                    class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">智能中心</h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <button type="button" class="btn btn-sm btn-outline-primary me-2">
+                            <i class="bi bi-gear"></i> 系统设置
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-question-circle"></i> 帮助
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 智能预测模块 -->
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5>智能预测分析</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="card mb-3">
+                                            <div class="card-header bg-primary text-white">
+                                                水质趋势预测
+                                            </div>
+                                            <div class="card-body">
+                                                <canvas id="waterQualityPredictionChart"></canvas>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="card mb-3">
+                                            <div class="card-header bg-success text-white">
+                                                鱼类数量预测
+                                            </div>
+                                            <div class="card-body">
+                                                <canvas id="fishPopulationPredictionChart"></canvas>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 异常检测模块 -->
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5>异常检测系统</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="alert alert-warning" role="alert">
+                                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                    <strong>注意:</strong> 系统检测到3个潜在异常，请查看详情。
+                                </div>
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>时间</th>
+                                            <th>类型</th>
+                                            <th>位置</th>
+                                            <th>详情</th>
+                                            <th>状态</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="table-danger">
+                                            <td>2023-11-15 08:23</td>
+                                            <td>水质异常</td>
+                                            <td>区域A-3</td>
+                                            <td>pH值突然下降至6.2</td>
+                                            <td><span class="badge bg-danger">未处理</span></td>
+                                            <td>
+                                                <button class="btn btn-sm btn-primary">处理</button>
+                                                <button class="btn btn-sm btn-secondary">详情</button>
+                                            </td>
+                                        </tr>
+                                        <tr class="table-warning">
+                                            <td>2023-11-15 07:45</td>
+                                            <td>设备异常</td>
+                                            <td>区域B-2</td>
+                                            <td>水下摄像头UW002信号不稳定</td>
+                                            <td><span class="badge bg-warning">处理中</span></td>
+                                            <td>
+                                                <button class="btn btn-sm btn-primary">处理</button>
+                                                <button class="btn btn-sm btn-secondary">详情</button>
+                                            </td>
+                                        </tr>
+                                        <tr class="table-warning">
+                                            <td>2023-11-14 22:10</td>
+                                            <td>鱼群异常</td>
+                                            <td>区域C-5</td>
+                                            <td>鱼群密度异常增加</td>
+                                            <td><span class="badge bg-warning">处理中</span></td>
+                                            <td>
+                                                <button class="btn btn-sm btn-primary">处理</button>
+                                                <button class="btn btn-sm btn-secondary">详情</button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 智能识别模块 -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5>鱼类智能识别</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="fishImageUpload" class="form-label">上传图片进行鱼类识别</label>
+                                    <input class="form-control" type="file" id="fishImageUpload">
+                                </div>
+                                <div class="text-center mb-3">
+                                    <img src="assets/images/fish_sample.jpg" class="img-fluid rounded" alt="鱼类样本图片"
+                                        style="max-height: 200px;">
+                                </div>
+                                <div class="d-grid">
+                                    <button class="btn btn-primary" id="analyzeFishBtn">分析识别</button>
+                                </div>
+                                <div class="mt-3" id="fishAnalysisResult">
+                                    <h6>识别结果:</h6>
+                                    <ul class="list-group">
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            金枪鱼 (Thunnus)
+                                            <span class="badge bg-primary rounded-pill">95%</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            黄鳍金枪鱼 (Thunnus albacares)
+                                            <span class="badge bg-primary rounded-pill">92%</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            蓝鳍金枪鱼 (Thunnus thynnus)
+                                            <span class="badge bg-primary rounded-pill">85%</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5>水质智能分析</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="waterAreaSelect" class="form-label">选择区域</label>
+                                    <select class="form-select" id="waterAreaSelect">
+                                        <option selected>全部区域</option>
+                                        <option>区域A</option>
+                                        <option>区域B</option>
+                                        <option>区域C</option>
+                                        <option>区域D</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="waterAnalysisDate" class="form-label">选择日期</label>
+                                    <input type="date" class="form-control" id="waterAnalysisDate" value="2023-11-15">
+                                </div>
+                                <div class="d-grid mb-3">
+                                    <button class="btn btn-success" id="analyzeWaterBtn">分析水质</button>
+                                </div>
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        <h6>水质分析报告</h6>
+                                        <p>基于AI分析，当前水质状况为<strong class="text-success">优良</strong>，适合鱼类生长。</p>
+                                        <div class="progress mb-2">
+                                            <div class="progress-bar bg-success" role="progressbar" style="width: 85%;"
+                                                aria-valuenow="85" aria-valuemin="0" aria-valuemax="100">水质指数: 85/100
+                                            </div>
+                                        </div>
+                                        <p class="small text-muted">建议: 继续保持当前水质管理策略，无需额外干预。</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 智能控制中心 -->
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5>智能控制中心</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="card mb-3">
+                                            <div class="card-header bg-info text-white">
+                                                自动投喂系统
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="form-check form-switch mb-3">
+                                                    <input class="form-check-input" type="checkbox"
+                                                        id="autoFeedingSwitch" checked>
+                                                    <label class="form-check-label" for="autoFeedingSwitch">自动投喂</label>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="feedingSchedule" class="form-label">投喂时间表</label>
+                                                    <select class="form-select" id="feedingSchedule">
+                                                        <option>每天两次 (08:00, 18:00)</option>
+                                                        <option>每天三次 (08:00, 13:00, 18:00)</option>
+                                                        <option>每天四次 (06:00, 12:00, 18:00, 22:00)</option>
+                                                        <option>自定义...</option>
+                                                    </select>
+                                                </div>
+                                                <div class="d-grid">
+                                                    <button class="btn btn-primary" id="manualFeedingBtn">手动投喂</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="card mb-3">
+                                            <div class="card-header bg-warning text-white">
+                                                水质调节系统
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="form-check form-switch mb-3">
+                                                    <input class="form-check-input" type="checkbox"
+                                                        id="autoWaterQualitySwitch" checked>
+                                                    <label class="form-check-label"
+                                                        for="autoWaterQualitySwitch">自动调节</label>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="phTarget" class="form-label">目标pH值</label>
+                                                    <input type="range" class="form-range" min="6.0" max="8.5"
+                                                        step="0.1" value="7.2" id="phTarget">
+                                                    <div class="text-center" id="phTargetValue">7.2</div>
+                                                </div>
+                                                <div class="d-grid">
+                                                    <button class="btn btn-warning"
+                                                        id="waterQualityAdjustBtn">手动调节</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="card mb-3">
+                                            <div class="card-header bg-danger text-white">
+                                                紧急控制系统
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="alert alert-info" role="alert">
+                                                    <i class="bi bi-info-circle-fill me-2"></i>
+                                                    所有系统正常运行中
+                                                </div>
+                                                <div class="d-grid gap-2">
+                                                    <button class="btn btn-outline-danger" id="emergencyStopBtn">
+                                                        <i class="bi bi-exclamation-octagon-fill me-2"></i>紧急停止
+                                                    </button>
+                                                    <button class="btn btn-outline-warning" id="systemResetBtn">
+                                                        <i class="bi bi-arrow-repeat me-2"></i>系统重置
+                                                    </button>
+                                                    <button class="btn btn-outline-success" id="callSupportBtn">
+                                                        <i class="bi bi-telephone-fill me-2"></i>联系技术支持
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/intelligence.js"></script>
+</body>
+
+</html>
