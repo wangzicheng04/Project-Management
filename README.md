@@ -1,5 +1,7 @@
 # 软件工程
 
+项目目录
+```
 Smart-marine-ranch-visualization-system/
 ├── app/
 │   ├── models.py
@@ -15,4 +17,4 @@ Smart-marine-ranch-visualization-system/
 │   │   └── intelligence.html
 │   │   └── underwater.html
 ├── run.py
-
+```
