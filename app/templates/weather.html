@@ -7,52 +7,8 @@
     <h1 class="mb-4">海洋牧场天气数据</h1>
     
     <div class="row mb-4">
-        <div class="col-md-6">
+        <div class="col-md-12">
             <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">选择牧场位置</h5>
-                </div>
-                <div class="card-body">
-                    <select id="location-select" class="form-select">
-                        {% for location in locations %}
-                        <option value="{{ location.id }}">{{ location.name }}</option>
-                        {% endfor %}
-                    </select>
-                    
-                    {% if current_user.role == 'admin' %}
-                    <div class="mt-3">
-                        <a href="{{ url_for('weather.add_location') }}" class="btn btn-outline-primary">添加新位置</a>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header bg-info text-white">
-                    <h5 class="mb-0">数据选项</h5>
-                </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <label for="history-days" class="form-label">历史数据天数</label>
-                        <select id="history-days" class="form-select">
-                            <option value="1">1天</option>
-                            <option value="3">3天</option>
-                            <option value="7" selected>7天</option>
-                            <option value="14">14天</option>
-                            <option value="30">30天</option>
-                        </select>
-                    </div>
-                    <button id="refresh-data" class="btn btn-primary">刷新数据</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="row">
-        <div class="col-md-6">
-            <div class="card mb-4">
                 <div class="card-header bg-success text-white">
                     <h5 class="mb-0">当前天气</h5>
                 </div>
@@ -66,8 +22,10 @@
                 </div>
             </div>
         </div>
-        
-        <div class="col-md-6">
+    </div>
+    
+    <div class="row">
+        <div class="col-12">
             <div class="card mb-4">
                 <div class="card-header bg-warning text-dark">
                     <h5 class="mb-0">天气预报</h5>
@@ -83,129 +41,12 @@
             </div>
         </div>
     </div>
-    
-    <div class="row">
-        <div class="col-12">
-            <div class="card mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">温度趋势</h5>
-                </div>
-                <div class="card-body">
-                    <canvas id="temperature-chart" height="300"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="row">
-        <div class="col-md-6">
-            <div class="card mb-4">
-                <div class="card-header bg-info text-white">
-                    <h5 class="mb-0">湿度趋势</h5>
-                </div>
-                <div class="card-body">
-                    <canvas id="humidity-chart" height="250"></canvas>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-md-6">
-            <div class="card mb-4">
-                <div class="card-header bg-danger text-white">
-                    <h5 class="mb-0">风速趋势</h5>
-                </div>
-                <div class="card-body">
-                    <canvas id="wind-chart" height="250"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
 
-<!-- 引入Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <script>
-    // 图表对象
-    let temperatureChart, humidityChart, windChart;
-    
-    // 初始化图表
-    function initCharts() {
-        const temperatureCtx = document.getElementById('temperature-chart').getContext('2d');
-        temperatureChart = new Chart(temperatureCtx, {
-            type: 'line',
-            data: {
-                labels: [],
-                datasets: [{
-                    label: '温度 (°C)',
-                    data: [],
-                    borderColor: 'rgb(75, 192, 192)',
-                    tension: 0.1,
-                    fill: false
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: false
-                    }
-                }
-            }
-        });
-        
-        const humidityCtx = document.getElementById('humidity-chart').getContext('2d');
-        humidityChart = new Chart(humidityCtx, {
-            type: 'line',
-            data: {
-                labels: [],
-                datasets: [{
-                    label: '湿度 (%)',
-                    data: [],
-                    borderColor: 'rgb(54, 162, 235)',
-                    tension: 0.1,
-                    fill: false
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: false
-                    }
-                }
-            }
-        });
-        
-        const windCtx = document.getElementById('wind-chart').getContext('2d');
-        windChart = new Chart(windCtx, {
-            type: 'line',
-            data: {
-                labels: [],
-                datasets: [{
-                    label: '风速 (km/h)',
-                    data: [],
-                    borderColor: 'rgb(255, 99, 132)',
-                    tension: 0.1,
-                    fill: false
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
-    }
-    
-    // 加载当前天气数据
+    // 加载当前天气数据 - 使用固定位置
     function loadCurrentWeather() {
-        const locationId = document.getElementById('location-select').value;
-        
-        fetch(`/api/weather/current/${locationId}`)
+        fetch('/api/weather/current')
             .then(response => response.json())
             .then(data => {
                 if (data.error) {
@@ -217,44 +58,63 @@
                     return;
                 }
                 
-                // 获取天气图标
-                const weatherIcon = getWeatherIcon(data.weather_code);
+                // 获取紫外线指数描述
+                const uvDescription = getUVDescription(data.uv_index);
+                // 获取能见度描述
+                const visibilityDesc = getVisibilityDescription(data.visibility);
                 
                 document.getElementById('current-weather').innerHTML = `
-                    <div class="text-center mb-3">
-                        <h3>${data.location_name}</h3>
-                        <p class="text-muted">${formatDateTime(data.timestamp)}</p>
-                    </div>
-                    
-                    <div class="row align-items-center">
-                        <div class="col-md-6 text-center">
-                            <i class="${weatherIcon} fa-4x mb-2"></i>
-                            <h2>${data.temperature}°C</h2>
-                            <p>${data.weather_description}</p>
+                    <div class="row">
+                        <div class="col-md-4 text-center mb-3">
+                            <div class="display-4">${data.temperature}°C</div>
+                            <h4>${data.weather_description}</h4>
+                            <div class="fs-5 mt-2">
+                                <i class="bi bi-cloud"></i> 云量: ${data.cloud_cover}%
+                            </div>
                         </div>
-                        <div class="col-md-6">
-                            <ul class="list-group">
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    湿度
+                        <div class="col-md-4">
+                            <div class="list-group">
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <i class="bi bi-droplet-fill text-primary"></i> 湿度
+                                    </div>
                                     <span class="badge bg-primary rounded-pill">${data.humidity}%</span>
-                                </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    风速
-                                    <span class="badge bg-primary rounded-pill">${data.wind_speed} km/h</span>
-                                </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    风向
-                                    <span class="badge bg-primary rounded-pill">${formatWindDirection(data.wind_direction)}</span>
-                                </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    气压
-                                    <span class="badge bg-primary rounded-pill">${data.pressure} hPa</span>
-                                </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    能见度
-                                    <span class="badge bg-primary rounded-pill">${data.visibility} km</span>
-                                </li>
-                            </ul>
+                                </div>
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <i class="bi bi-umbrella text-info"></i> 降水量
+                                    </div>
+                                    <span class="badge bg-info rounded-pill">${data.precipitation} mm</span>
+                                </div>
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <i class="bi bi-wind text-secondary"></i> 风速
+                                    </div>
+                                    <span class="badge bg-secondary rounded-pill">${data.wind_speed} km/h</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="list-group">
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <i class="bi bi-sun text-warning"></i> 紫外线指数
+                                    </div>
+                                    <span class="badge ${getUVBadgeColor(data.uv_index)} rounded-pill">${data.uv_index} (${uvDescription})</span>
+                                </div>
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <i class="bi bi-eye text-dark"></i> 能见度
+                                    </div>
+                                    <span class="badge bg-dark rounded-pill">${(data.visibility/1000).toFixed(1)} km (${visibilityDesc})</span>
+                                </div>
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <i class="bi bi-speedometer2 text-danger"></i> 气压
+                                    </div>
+                                    <span class="badge bg-danger rounded-pill">${data.pressure} hPa</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -269,11 +129,38 @@
             });
     }
     
-    // 加载天气预报
+    // 获取紫外线指数描述
+    function getUVDescription(uvIndex) {
+        if (uvIndex < 3) return '低';
+        if (uvIndex < 6) return '中等';
+        if (uvIndex < 8) return '高';
+        if (uvIndex < 11) return '很高';
+        return '极高';
+    }
+    
+    // 获取紫外线指数对应的徽章颜色
+    function getUVBadgeColor(uvIndex) {
+        if (uvIndex < 3) return 'bg-success';
+        if (uvIndex < 6) return 'bg-warning';
+        if (uvIndex < 8) return 'bg-orange';
+        if (uvIndex < 11) return 'bg-danger';
+        return 'bg-purple';
+    }
+    
+    // 获取能见度描述
+    function getVisibilityDescription(visibility) {
+        const visibilityKm = visibility / 1000;
+        if (visibilityKm < 1) return '很差';
+        if (visibilityKm < 4) return '差';
+        if (visibilityKm < 10) return '中等';
+        if (visibilityKm < 20) return '良好';
+        return '极佳';
+    }
+    
+    // 加载天气预报 - 使用固定位置
     function loadWeatherForecast() {
-        const locationId = document.getElementById('location-select').value;
-        
-        fetch(`/api/weather/forecast/${locationId}?days=7`)
+        // 保持原有代码不变
+        fetch('/api/weather/forecast')
             .then(response => response.json())
             .then(data => {
                 if (data.error) {
@@ -287,14 +174,19 @@
                 
                 let forecastHtml = '<div class="row">';
                 
-                // 处理每日预报
-                for (let i = 0; i < data.daily.time.length; i++) {
-                    const date = data.daily.time[i];
-                    const maxTemp = data.daily.temperature_2m_max[i];
-                    const minTemp = data.daily.temperature_2m_min[i];
-                    const weatherCode = data.daily.weather_code[i];
-                    const weatherDesc = data.daily.weather_description[i];
-                    const weatherIcon = getWeatherIcon(weatherCode);
+                // 获取预报数据
+                const dates = data.daily.time;
+                const maxTemps = data.daily.temperature_2m_max;
+                const minTemps = data.daily.temperature_2m_min;
+                const weatherCodes = data.daily.weather_code;
+                const weatherDescs = data.daily.weather_description;
+                
+                // 生成预报卡片
+                for (let i = 0; i < dates.length; i++) {
+                    const date = dates[i];
+                    const maxTemp = maxTemps[i];
+                    const minTemp = minTemps[i];
+                    const weatherDesc = weatherDescs[i];
                     
                     forecastHtml += `
                         <div class="col-md-3 mb-3">
@@ -303,7 +195,6 @@
                                     ${formatDate(date)}
                                 </div>
                                 <div class="card-body">
-                                    <i class="${weatherIcon} fa-2x mb-2"></i>
                                     <h5>${weatherDesc}</h5>
                                     <p class="mb-0">
                                         <span class="text-danger">${maxTemp}°</span> / 
@@ -328,116 +219,19 @@
             });
     }
     
-    // 加载历史天气数据
-    function loadWeatherHistory() {
-        const locationId = document.getElementById('location-select').value;
-        const days = document.getElementById('history-days').value;
-        
-        fetch(`/api/weather/history/${locationId}?days=${days}`)
-            .then(response => response.json())
-            .then(data => {
-                // 提取数据
-                const timestamps = data.map(item => formatDateTime(item.timestamp));
-                const temperatures = data.map(item => item.temperature);
-                const humidities = data.map(item => item.humidity);
-                const windSpeeds = data.map(item => item.wind_speed);
-                
-                // 更新图表
-                updateChart(temperatureChart, timestamps, temperatures, '温度 (°C)');
-                updateChart(humidityChart, timestamps, humidities, '湿度 (%)');
-                updateChart(windChart, timestamps, windSpeeds, '风速 (km/h)');
-            })
-            .catch(error => {
-                console.error('获取历史天气数据失败:', error);
-                alert('获取历史天气数据失败，请稍后再试。');
-            });
-    }
-    
-    // 更新图表数据
-    function updateChart(chart, labels, data, label) {
-        chart.data.labels = labels;
-        chart.data.datasets[0].data = data;
-        chart.data.datasets[0].label = label;
-        chart.update();
-    }
-    
-    // 格式化日期时间
-    function formatDateTime(dateTimeStr) {
-        const date = new Date(dateTimeStr);
-        return date.toLocaleString('zh-CN');
-    }
-    
     // 格式化日期
     function formatDate(dateStr) {
         const date = new Date(dateStr);
         return date.toLocaleDateString('zh-CN');
     }
     
-    // 格式化风向
-    function formatWindDirection(degrees) {
-        if (degrees === null || degrees === undefined) return '未知';
-        
-        const directions = ['北', '东北', '东', '东南', '南', '西南', '西', '西北'];
-        const index = Math.round(degrees / 45) % 8;
-        return directions[index];
-    }
-    
-    // 获取天气图标
-    function getWeatherIcon(weatherCode) {
-        // 根据WMO天气代码返回对应的Font Awesome图标类
-        if (weatherCode === null || weatherCode === undefined) return 'fas fa-question-circle';
-        
-        // 晴天
-        if (weatherCode === 0) return 'fas fa-sun';
-        // 部分晴朗
-        if (weatherCode === 1 || weatherCode === 2) return 'fas fa-cloud-sun';
-        // 阴天
-        if (weatherCode === 3) return 'fas fa-cloud';
-        // 雾
-        if (weatherCode === 45 || weatherCode === 48) return 'fas fa-smog';
-        // 毛毛雨
-        if (weatherCode >= 51 && weatherCode <= 57) return 'fas fa-cloud-rain';
-        // 雨
-        if (weatherCode >= 61 && weatherCode <= 67) return 'fas fa-cloud-showers-heavy';
-        // 雪
-        if (weatherCode >= 71 && weatherCode <= 77) return 'fas fa-snowflake';
-        // 阵雨
-        if (weatherCode >= 80 && weatherCode <= 82) return 'fas fa-cloud-rain';
-        // 阵雪
-        if (weatherCode >= 85 && weatherCode <= 86) return 'fas fa-snowflake';
-        // 雷暴
-        if (weatherCode >= 95 && weatherCode <= 99) return 'fas fa-bolt';
-        
-        return 'fas fa-cloud';
-    }
-    
     // 页面加载完成后执行
     document.addEventListener('DOMContentLoaded', function() {
-        // 初始化图表
-        initCharts();
-        
         // 加载当前天气数据
         loadCurrentWeather();
         
         // 加载天气预报
         loadWeatherForecast();
-        
-        // 加载历史天气数据
-        loadWeatherHistory();
-        
-        // 刷新数据按钮点击事件
-        document.getElementById('refresh-data').addEventListener('click', function() {
-            loadCurrentWeather();
-            loadWeatherForecast();
-            loadWeatherHistory();
-        });
-        
-        // 位置选择变更事件
-        document.getElementById('location-select').addEventListener('change', function() {
-            loadCurrentWeather();
-            loadWeatherForecast();
-            loadWeatherHistory();
-        });
     });
 </script>
 {% endblock %}

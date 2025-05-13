@@ -1,6 +1,5 @@
-from flask import Blueprint, render_template, jsonify, request, flash, redirect, url_for
-from flask_login import login_required, current_user
-from ..models import db, RanchLocation, WeatherData
+from flask import Blueprint, render_template, jsonify, request
+from flask_login import login_required
 from ..services.weather_service import WeatherService
 
 weather_bp = Blueprint('weather', __name__)
@@ -9,116 +8,55 @@ weather_bp = Blueprint('weather', __name__)
 @login_required
 def weather_dashboard():
     """天气数据展示页面"""
-    locations = RanchLocation.query.all()
-    return render_template('weather.html', locations=locations)
+    return render_template('weather.html')
 
-@weather_bp.route('/api/weather/current/<int:location_id>')
+@weather_bp.route('/api/weather/current')
 @login_required
-def get_current_weather(location_id):
-    """获取最新天气数据"""
-    weather_data = WeatherService.get_current_weather(location_id)
+def get_current_weather():
+    """获取当前天气数据 - 使用固定位置"""
+    weather_data = WeatherService.get_current_weather()
     
     if weather_data:
-        location = RanchLocation.query.get(location_id)
+        # 提取当前天气数据
+        current = weather_data.get("current", {})
+        weather_code = current.get("weather_code")
+        
         return jsonify({
-            'id': weather_data.id,
-            'location_name': location.name,
-            'timestamp': weather_data.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
-            'temperature': weather_data.temperature,
-            'humidity': weather_data.humidity,
-            'precipitation': weather_data.precipitation,
-            'wind_speed': weather_data.wind_speed,
-            'wind_direction': weather_data.wind_direction,
-            'pressure': weather_data.pressure,
-            'cloud_cover': weather_data.cloud_cover,
-            'visibility': weather_data.visibility,
-            'weather_code': weather_data.weather_code,
-            'weather_description': WeatherService.get_weather_code_description(weather_data.weather_code)
+            'temperature': current.get("temperature_2m"),
+            'humidity': current.get("relative_humidity_2m"),
+            'precipitation': current.get("precipitation"),
+            'wind_speed': current.get("wind_speed_10m"),
+            'wind_direction': current.get("wind_direction_10m"),
+            'pressure': current.get("pressure_msl"),
+            'surface_pressure': current.get("surface_pressure"),
+            'cloud_cover': current.get("cloud_cover"),
+            'uv_index': current.get("uv_index"),
+            'visibility': current.get("visibility"),
+            'is_day': current.get("is_day"),
+            'weather_code': weather_code,
+            'weather_description': WeatherService.get_weather_code_description(weather_code)
         })
     else:
         return jsonify({'error': '无法获取天气数据'}), 404
 
-@weather_bp.route('/api/weather/forecast/<int:location_id>')
+@weather_bp.route('/api/weather/forecast')
 @login_required
-def get_weather_forecast(location_id):
-    """获取天气预报"""
+def get_weather_forecast():
+    """获取天气预报 - 使用固定位置"""
     days = request.args.get('days', 7, type=int)
-    forecast_data = WeatherService.get_weather_forecast(location_id, days)
+    
+    forecast_data = WeatherService.get_weather_forecast(days)
     
     if forecast_data:
         # 添加天气描述
-        weather_descriptions = []
-        for code in forecast_data['daily']['weather_code']:
-            weather_descriptions.append(WeatherService.get_weather_code_description(code))
+        daily = forecast_data.get('daily', {})
+        weather_codes = daily.get('weather_code', [])
+        weather_descriptions = [WeatherService.get_weather_code_description(code) for code in weather_codes]
         
-        forecast_data['daily']['weather_description'] = weather_descriptions
+        # 将天气描述添加到结果中
+        result = forecast_data.copy()
+        result['daily']['weather_description'] = weather_descriptions
         
-        return jsonify(forecast_data)
+        return jsonify(result)
     else:
         return jsonify({'error': '无法获取天气预报'}), 404
-
-@weather_bp.route('/api/weather/history/<int:location_id>')
-@login_required
-def get_weather_history(location_id):
-    """获取历史天气数据"""
-    days = request.args.get('days', 7, type=int)
-    history_data = WeatherService.get_weather_history(location_id, days)
-    
-    result = []
-    for data in history_data:
-        result.append({
-            'timestamp': data.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
-            'temperature': data.temperature,
-            'humidity': data.humidity,
-            'precipitation': data.precipitation,
-            'wind_speed': data.wind_speed,
-            'pressure': data.pressure,
-            'weather_code': data.weather_code,
-            'weather_description': WeatherService.get_weather_code_description(data.weather_code)
-        })
-    
-    return jsonify(result)
-
-@weather_bp.route('/locations')
-@login_required
-def list_locations():
-    """列出所有牧场位置"""
-    locations = RanchLocation.query.all()
-    return render_template('locations.html', locations=locations)
-
-@weather_bp.route('/locations/add', methods=['GET', 'POST'])
-@login_required
-def add_location():
-    """添加新的牧场位置"""
-    if current_user.role != 'admin':
-        flash('只有管理员可以添加位置')
-        return redirect(url_for('weather.list_locations'))
-        
-    if request.method == 'POST':
-        name = request.form.get('name')
-        latitude = request.form.get('latitude')
-        longitude = request.form.get('longitude')
-        description = request.form.get('description')
-        
-        if not name or not latitude or not longitude:
-            flash('请填写所有必填字段')
-        else:
-            try:
-                latitude = float(latitude)
-                longitude = float(longitude)
-                
-                new_location = RanchLocation(
-                    name=name,
-                    latitude=latitude,
-                    longitude=longitude,
-                    description=description
-                )
-                
-                db.session.add(new_location)
-                db.session.commit()
-                flash('位置添加成功')
-                return redirect(url_for('weather.list_locations'))
-            except ValueError:
-                flash('经纬度必须是有效的数字')
-    
-    return render_template('add_location.html')
