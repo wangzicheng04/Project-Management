@@ -20,7 +20,10 @@ def create_app():
 
     from .routes import auth_bp
     from .routes import main_bp
+    from .routes import weather_bp
+    
     app.register_blueprint(auth_bp)
     app.register_blueprint(main_bp)
+    app.register_blueprint(weather_bp)
 
     return app
