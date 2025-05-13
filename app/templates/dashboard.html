@@ -16,7 +16,7 @@
                 <div class="position-sticky pt-3">
                     <div class="text-center mb-4">
                         <h5 class="text-white">海洋管理系统</h5>
-                        <p class="text-white-50" id="userInfo">欢迎，<span id="currentUser">用户</span></p>
+                        <p class="text-white-50" id="userInfo">欢迎，<span id="currentUser">{{ username }}</span></p>
                     </div>
                     <ul class="nav flex-column">
                         <li class="nav-item">
@@ -45,7 +45,7 @@
                             </a>
                         </li>
                         <li class="nav-item mt-5">
-                            <a class="nav-link text-white" href="#" id="logoutBtn">
+                            <a class="nav-link text-white" href="{{ url_for('auth.logout') }}" id="logoutBtn">
                                 <i class="bi bi-box-arrow-right me-2"></i>退出登录
                             </a>
                         </li>
