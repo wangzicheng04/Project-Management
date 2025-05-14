@@ -21,7 +21,7 @@ def login():
 
             # 跳转不同的 Dashboard
             if user.role == 'admin':
-                return redirect(url_for('main.admin_dashboard'))
+                return redirect(url_for('main.user_dashboard'))
             else:
                 return redirect(url_for('main.user_dashboard'))
         else:

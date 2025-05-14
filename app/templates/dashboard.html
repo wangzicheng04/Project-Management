@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,6 +9,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
     <div class="container-fluid">
         <div class="row">
@@ -16,36 +18,41 @@
                 <div class="position-sticky pt-3">
                     <div class="text-center mb-4">
                         <h5 class="text-white">海洋管理系统</h5>
-                        <p class="text-white-50" id="userInfo">欢迎，<span id="currentUser">用户</span></p>
+                        <p class="text-white-50" id="userInfo">
+                            欢迎，<span id="currentUser">{{ username }}</span>
+                        </p>
                     </div>
                     <ul class="nav flex-column">
                         <li class="nav-item">
-                            <a class="nav-link active text-white" href="dashboard.html">
+                            <a class="nav-link active text-white" href="{{ url_for('main.user_dashboard') }}">
                                 <i class="bi bi-speedometer2 me-2"></i>主要信息
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white" href="underwater.html">
+                            <a class="nav-link text-white" href="{{ url_for('main.underwater') }}">
                                 <i class="bi bi-water me-2"></i>水下系统
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white" href="intelligence.html">
+                            <a class="nav-link text-white" href="{{ url_for('main.intelligence') }}">
                                 <i class="bi bi-cpu me-2"></i>智能中心
                             </a>
                         </li>
-                        <li class="nav-item" id="adminLink" style="display: none;">
-                            <a class="nav-link text-white" href="admin.html">
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="{{ url_for('main.admin_page') }}">
                                 <i class="bi bi-gear me-2"></i>管理员管理
                             </a>
                         </li>
+
                         <li class="nav-item">
-                            <a class="nav-link text-white" href="datacenter.html">
+                            <a class="nav-link text-white" href="{{ url_for('main.datacenter') }}">
                                 <i class="bi bi-database me-2"></i>数据中心
                             </a>
                         </li>
+
                         <li class="nav-item mt-5">
-                            <a class="nav-link text-white" href="#" id="logoutBtn">
+                            <a class="nav-link text-white" href="{{ url_for('auth.logout') }}">
+
                                 <i class="bi bi-box-arrow-right me-2"></i>退出登录
                             </a>
                         </li>
@@ -55,7 +62,8 @@
 
             <!-- 主内容区域 -->
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <div
+                    class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                     <h1 class="h2">主要信息概览</h1>
                     <div class="btn-toolbar mb-2 mb-md-0">
                         <div class="btn-group me-2">
@@ -108,7 +116,7 @@
                                 document.getElementById('weatherDesc').textContent = data.weather_description;
                                 document.getElementById('humidity').textContent = `湿度: ${data.humidity}%`;
                                 document.getElementById('wind').textContent = `风速: ${data.wind_speed} km/h`;
-                                
+
                                 // 获取紫外线指数描述
                                 let uvDesc = '低';
                                 if (data.uv_index < 3) uvDesc = '低';
@@ -116,7 +124,7 @@
                                 else if (data.uv_index < 8) uvDesc = '高';
                                 else if (data.uv_index < 11) uvDesc = '很高';
                                 else uvDesc = '极高';
-                                
+
                                 document.getElementById('uv').textContent = `紫外线: ${data.uv_index} (${uvDesc})`;
                             }
                         })
@@ -185,7 +193,7 @@
                     <div class="col-md-12">
                         <div class="card text-white bg-success mb-3">
                             <div class="card-header">鱼类数据 : 种类 体重 体长 宽度<br>
-                                                    （取自所给数据集中数据的平均值）</div>
+                                （取自所给数据集中数据的平均值）</div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-6">
@@ -253,7 +261,8 @@
                                     <div class="col-md-6">
                                         <div class="progress-ring mb-3" data-percent="85">
                                             <svg width="20" height="20">
-                                                <circle class="progress-ring__circle" stroke-width="6" fill="transparent" r="9" cx="10" cy="10"/>
+                                                <circle class="progress-ring__circle" stroke-width="6"
+                                                    fill="transparent" r="9" cx="10" cy="10" />
                                             </svg>
                                             <div class="progress-text">
                                                 <h5>在线率</h5>
@@ -357,7 +366,7 @@
         const circumference = radius * 2 * Math.PI;
         progressRing.querySelector('circle').style.strokeDasharray = `${circumference} ${circumference}`;
         progressRing.querySelector('circle').style.strokeDashoffset = circumference;
-    
+
         // 设备类型饼图
         new Chart(document.getElementById('deviceTypeChart'), {
             type: 'pie',
@@ -371,5 +380,5 @@
         });
     </script>
 </body>
-</html>
 
+</html>
