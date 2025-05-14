@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>海洋管理系统 - 主页</title>
+    <title>海洋管理系统 - 管理员管理</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="css/style.css">
@@ -19,12 +19,12 @@
                     <div class="text-center mb-4">
                         <h5 class="text-white">海洋管理系统</h5>
                         <p class="text-white-50" id="userInfo">
-                            欢迎，<span id="currentUser">{{ username }}</span>
+                            欢迎，<span id="currentUser">{{ username }}</span>（管理员）
                         </p>
                     </div>
                     <ul class="nav flex-column">
                         <li class="nav-item">
-                            <a class="nav-link active text-white" href="{{ url_for('main.user_dashboard') }}">
+                            <a class="nav-link text-white" href="{{ url_for('main.user_dashboard') }}">
                                 <i class="bi bi-speedometer2 me-2"></i>主要信息
                             </a>
                         </li>
@@ -39,7 +39,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white" href="{{ url_for('main.admin_page') }}">
+                            <a class="nav-link active text-white" href="{{ url_for('main.admin_page') }}">
                                 <i class="bi bi-gear me-2"></i>管理员管理
                             </a>
                         </li>
@@ -48,13 +48,132 @@
                                 <i class="bi bi-database me-2"></i>数据中心
                             </a>
                         </li>
-
                         <li class="nav-item mt-5">
                             <a class="nav-link text-white" href="{{ url_for('auth.logout') }}">
-
                                 <i class="bi bi-box-arrow-right me-2"></i>退出登录
                             </a>
                         </li>
                     </ul>
                 </div>
             </nav>
+
+            <!-- 主内容区域 -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div class="d-flex justify-content-between align-items-center pt-3 pb-2 mb-4 border-bottom">
+                    <h1 class="h2">管理员控制面板</h1>
+                    <span class="text-muted">你好，管理员 {{ username }} 👑</span>
+                </div>
+
+                <div class="row">
+                    <!-- 用户管理 -->
+                    <div class="col-md-6">
+                        <div class="card mb-4">
+                            <div class="card-header bg-primary text-white">
+                                <i class="bi bi-people-fill me-2"></i>用户管理
+                            </div>
+                            <div class="card-body">
+                                <p>查看、编辑或删除用户账户。</p>
+                                <a href="#" class="btn btn-outline-primary btn-sm">管理用户</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 日志监控 -->
+                    <div class="col-md-6">
+                        <div class="card mb-4">
+                            <div class="card-header bg-warning text-white">
+                                <i class="bi bi-file-earmark-text me-2"></i>系统日志
+                            </div>
+                            <div class="card-body">
+                                <p>查看系统活动日志、操作历史和安全记录。</p>
+                                <a href="#" class="btn btn-outline-warning btn-sm">查看日志</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 权限管理 -->
+                    <div class="col-md-6">
+                        <div class="card mb-4">
+                            <div class="card-header bg-danger text-white">
+                                <i class="bi bi-shield-lock me-2"></i>权限审查
+                            </div>
+                            <div class="card-body">
+                                <p>分配角色、管理模块权限与访问控制。</p>
+                                <a href="#" class="btn btn-outline-danger btn-sm">设置权限</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 系统设置 -->
+                    <div class="col-md-6">
+                        <div class="card mb-4">
+                            <div class="card-header bg-info text-white">
+                                <i class="bi bi-sliders me-2"></i>系统设置
+                            </div>
+                            <div class="card-body">
+                                <p>配置平台参数，系统初始化或备份。</p>
+                                <a href="#" class="btn btn-outline-info btn-sm">系统配置</a>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 数据导入 -->
+                    <div class="col-md-6">
+                        <div class="card mb-4">
+                            <div class="card-header bg-secondary text-white">
+                                <i class="bi bi-upload me-2"></i>数据导入
+                            </div>
+                            <div class="card-body">
+                                <p>上传并导入传感器或监控设备历史数据。</p>
+                                <a href="#" class="btn btn-outline-secondary btn-sm">导入数据</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 系统备份 -->
+                    <div class="col-md-6">
+                        <div class="card mb-4">
+                            <div class="card-header bg-dark text-white">
+                                <i class="bi bi-hdd-fill me-2"></i>系统备份
+                            </div>
+                            <div class="card-body">
+                                <p>一键备份系统配置、数据库和日志信息。</p>
+                                <a href="#" class="btn btn-outline-dark btn-sm">立即备份</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 通知管理 -->
+                    <div class="col-md-6">
+                        <div class="card mb-4">
+                            <div class="card-header bg-success text-white">
+                                <i class="bi bi-megaphone me-2"></i>通知管理
+                            </div>
+                            <div class="card-body">
+                                <p>发布系统通知、警报推送和用户公告。</p>
+                                <a href="#" class="btn btn-outline-success btn-sm">发送通知</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- API接口管理 -->
+                    <div class="col-md-6">
+                        <div class="card mb-4">
+                            <div class="card-header bg-warning text-dark">
+                                <i class="bi bi-plug me-2"></i>接口管理
+                            </div>
+                            <div class="card-body">
+                                <p>管理第三方系统对接与API访问权限。</p>
+                                <a href="#" class="btn btn-outline-warning btn-sm">接口配置</a>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

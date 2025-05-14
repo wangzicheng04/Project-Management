@@ -1,60 +1,144 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>海洋管理系统 - 主页</title>
+    <title>数据中心 - 海洋牧场管理系统</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body {
+            background-color: #001f3f;
+            color: #ffffff;
+        }
+        .card {
+            background-color: #012b4d;
+            border: none;
+            color: #fff;
+        }
+        .card-header {
+            font-weight: bold;
+        }
+        .section-title {
+            color: #00bfff;
+            margin-top: 30px;
+        }
+        .radar-chart, .bar-chart, .map-placeholder, .table-dark {
+            background-color: #013a63;
+            border-radius: 10px;
+            padding: 20px;
+        }
+    </style>
 </head>
-
 <body>
-    <div class="container-fluid">
-        <div class="row">
-            <!-- 侧边导航栏 -->
-            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-dark sidebar collapse">
-                <div class="position-sticky pt-3">
-                    <div class="text-center mb-4">
-                        <h5 class="text-white">海洋管理系统</h5>
-                        <p class="text-white-50" id="userInfo">
-                            欢迎，<span id="currentUser">{{ username }}</span>
-                        </p>
-                    </div>
-                    <ul class="nav flex-column">
-                        <li class="nav-item">
-                            <a class="nav-link active text-white" href="{{ url_for('main.user_dashboard') }}">
-                                <i class="bi bi-speedometer2 me-2"></i>主要信息
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white" href="{{ url_for('main.underwater') }}">
-                                <i class="bi bi-water me-2"></i>水下系统
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white" href="{{ url_for('main.intelligence') }}">
-                                <i class="bi bi-cpu me-2"></i>智能中心
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white" href="{{ url_for('main.admin_page') }}">
-                                <i class="bi bi-gear me-2"></i>管理员管理
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white" href="{{ url_for('main.datacenter') }}">
-                                <i class="bi bi-database me-2"></i>数据中心
-                            </a>
-                        </li>
-
-                        <li class="nav-item mt-5">
-                            <a class="nav-link text-white" href="{{ url_for('auth.logout') }}">
-
-                                <i class="bi bi-box-arrow-right me-2"></i>退出登录
-                            </a>
-                        </li>
-                    </ul>
+<div class="container-fluid p-4">
+    <h2 class="section-title">数据中心可视化面板</h2>
+    <div class="row">
+        <!-- 数据总量 -->
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header bg-primary">数据总量</div>
+                <div class="card-body">
+                    <p>今日新增：<strong>138</strong> 条</p>
+                    <p>累计数据：<strong>987654</strong> 条</p>
+                    <p>处理总量：<strong>999</strong> 次</p>
                 </div>
-            </nav>
+            </div>
+        </div>
+
+        <!-- 数据中心分布 -->
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header bg-success">数据中心分布</div>
+                <div class="card-body map-placeholder">
+                    <p>（此处集成地图模块，显示广州、天津、南京、青岛、海口等中心）</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 硬件信息统计 -->
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header bg-info">硬件信息统计</div>
+                <div class="card-body">
+                    <p>CPU状态：<span class="text-success">良好</span></p>
+                    <p>内存状态：<span class="text-warning">临界</span></p>
+                    <p>GPU状态：<span class="text-danger">高负载</span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 数据类型统计 -->
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header bg-warning text-dark">数据类型统计</div>
+                <div class="card-body">
+                    <canvas id="dataTypeChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 传感器信息 -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-danger">传感器信息</div>
+                <div class="card-body">
+                    <table class="table table-dark table-striped">
+                        <thead>
+                        <tr>
+                            <th>设备</th><th>编码</th><th>类型</th><th>大小</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr><td>摄像头</td><td>video-1</td><td>H.264</td><td>4Mb</td></tr>
+                        <tr><td>气象仪</td><td>sensor-1</td><td>TXT</td><td>100kb</td></tr>
+                        <tr><td>海流传感器</td><td>holder-1</td><td>CSV</td><td>2Mb</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 数据交互统计 -->
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-secondary">数据交互统计</div>
+                <div class="card-body">
+                    <p>数据库服务：MySQL, HBase</p>
+                    <p>传输次数：<strong>567890</strong></p>
+                    <p>接收次数：<strong>567890</strong></p>
+                    <p>平均延迟：<strong>0.1s</strong></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // 示例图表 - 数据类型统计
+    new Chart(document.getElementById('dataTypeChart'), {
+        type: 'bar',
+        data: {
+            labels: ['图像', '文本', '视频', '声音', '结构化'],
+            datasets: [{
+                label: '数量',
+                data: [120, 90, 60, 30, 20],
+                backgroundColor: '#00bfff'
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+</script>
+</body>
+</html>
