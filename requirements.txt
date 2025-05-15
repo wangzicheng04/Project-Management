@@ -1,5 +1,9 @@
-flask
-flask_sqlalchemy
-flask_login 
-flask_wtf 
-email-validator
+Flask
+Flask-Login
+Flask-SQLAlchemy
+Werkzeug
+Jinja2
+itsdangerous
+click
+markupsafe
+bootstrap-flask
