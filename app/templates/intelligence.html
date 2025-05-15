@@ -172,165 +172,218 @@
                     </div>
                 </div>
 
-                <!-- 智能识别模块 -->
-                <div class="row mb-4">
-                    <div class="col-md-6">
-                        <div class="card">
-                            <div class="card-header">
-                                <h5>鱼类智能识别</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="mb-3">
-                                    <label for="fishImageUpload" class="form-label">上传图片进行鱼类识别</label>
-                                    <input class="form-control" type="file" id="fishImageUpload">
-                                </div>
-                                <div class="text-center mb-3">
-                                    <img src="assets/images/fish_sample.jpg" class="img-fluid rounded" alt="鱼类样本图片"
-                                        style="max-height: 200px;">
-                                </div>
-                                <div class="d-grid">
-                                    <button class="btn btn-primary" id="analyzeFishBtn">分析识别</button>
-                                </div>
-                                <div class="mt-3" id="fishAnalysisResult">
-                                    <h6>识别结果:</h6>
-                                    <ul class="list-group">
-                                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                                            金枪鱼 (Thunnus)
-                                            <span class="badge bg-primary rounded-pill">95%</span>
-                                        </li>
-                                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                                            黄鳍金枪鱼 (Thunnus albacares)
-                                            <span class="badge bg-primary rounded-pill">92%</span>
-                                        </li>
-                                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                                            蓝鳍金枪鱼 (Thunnus thynnus)
-                                            <span class="badge bg-primary rounded-pill">85%</span>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="card">
-                            <div class="card-header">
-                                <h5>水质智能分析</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="mb-3">
-                                    <label for="waterAreaSelect" class="form-label">选择区域</label>
-                                    <select class="form-select" id="waterAreaSelect">
-                                        <option selected>全部区域</option>
-                                        <option>区域A</option>
-                                        <option>区域B</option>
-                                        <option>区域C</option>
-                                        <option>区域D</option>
-                                    </select>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="waterAnalysisDate" class="form-label">选择日期</label>
-                                    <input type="date" class="form-control" id="waterAnalysisDate" value="2023-11-15">
-                                </div>
-                                <div class="d-grid mb-3">
-                                    <button class="btn btn-success" id="analyzeWaterBtn">分析水质</button>
-                                </div>
-                                <div class="card bg-light">
-                                    <div class="card-body">
-                                        <h6>水质分析报告</h6>
-                                        <p>基于AI分析，当前水质状况为<strong class="text-success">优良</strong>，适合鱼类生长。</p>
-                                        <div class="progress mb-2">
-                                            <div class="progress-bar bg-success" role="progressbar" style="width: 85%;"
-                                                aria-valuenow="85" aria-valuemin="0" aria-valuemax="100">水质指数: 85/100
-                                            </div>
-                                        </div>
-                                        <p class="small text-muted">建议: 继续保持当前水质管理策略，无需额外干预。</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 智能控制中心 -->
+                <!-- 智能预测分析部分 -->
                 <div class="row">
                     <div class="col-md-12">
-                        <div class="card">
+                        <div class="card mb-4">
                             <div class="card-header">
-                                <h5>智能控制中心</h5>
+                                <h5>智能预测分析</h5>
                             </div>
                             <div class="card-body">
                                 <div class="row">
-                                    <div class="col-md-4">
+                                    <!-- 水质趋势预测 -->
+                                    <div class="col-md-6">
                                         <div class="card mb-3">
-                                            <div class="card-header bg-info text-white">
-                                                自动投喂系统
+                                            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                                                <span><i class="bi bi-droplet-fill me-2"></i>水质趋势预测</span>
+                                                <div class="btn-group">
+                                                    <button class="btn btn-sm btn-light" id="waterQualityDay">日</button>
+                                                    <button class="btn btn-sm btn-light" id="waterQualityWeek">周</button>
+                                                    <button class="btn btn-sm btn-light" id="waterQualityMonth">月</button>
+                                                </div>
                                             </div>
                                             <div class="card-body">
-                                                <div class="form-check form-switch mb-3">
-                                                    <input class="form-check-input" type="checkbox"
-                                                        id="autoFeedingSwitch" checked>
-                                                    <label class="form-check-label" for="autoFeedingSwitch">自动投喂</label>
+                                                <canvas id="waterQualityPredictionChart" height="250"></canvas>
+                                                <div class="mt-3">
+                                                    <div class="alert alert-info">
+                                                        <h6><i class="bi bi-info-circle-fill me-2"></i>预测结果分析</h6>
+                                                        <p>根据历史数据分析，未来7天内水质参数预计将保持稳定，pH值可能在6月15日出现小幅波动，建议提前做好水质调节准备。</p>
+                                                    </div>
+                                                    <div class="d-flex justify-content-between">
+                                                        <span class="badge bg-success">可信度: 87%</span>
+                                                        <button class="btn btn-sm btn-outline-primary" id="exportWaterPrediction">
+                                                            <i class="bi bi-download"></i> 导出预测报告
+                                                        </button>
+                                                    </div>
                                                 </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- 鱼类数量预测 -->
+                                    <div class="col-md-6">
+                                        <div class="card mb-3">
+                                            <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                                                <span><i class="bi bi-bar-chart-fill me-2"></i>鱼类数量预测</span>
+                                                <div class="btn-group">
+                                                    <button class="btn btn-sm btn-light" id="fishCountQuarter">季度</button>
+                                                    <button class="btn btn-sm btn-light" id="fishCountHalfYear">半年</button>
+                                                    <button class="btn btn-sm btn-light" id="fishCountYear">年</button>
+                                                </div>
+                                            </div>
+                                            <div class="card-body">
+                                                <canvas id="fishCountPredictionChart" height="250"></canvas>
+                                                <div class="mt-3">
+                                                    <div class="alert alert-success">
+                                                        <h6><i class="bi bi-info-circle-fill me-2"></i>预测结果分析</h6>
+                                                        <p>基于生长模型预测，鲈鱼数量将在8月达到收获标准，预计产量较去年同期增长12%，建议提前规划收获计划。</p>
+                                                    </div>
+                                                    <div class="d-flex justify-content-between">
+                                                        <span class="badge bg-success">可信度: 83%</span>
+                                                        <button class="btn btn-sm btn-outline-success" id="exportFishPrediction">
+                                                            <i class="bi bi-download"></i> 导出预测报告
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- 异常检测系统 -->
+                                <div class="row mt-4">
+                                    <div class="col-md-12">
+                                        <div class="card">
+                                            <div class="card-header bg-warning text-dark">
+                                                <h5><i class="bi bi-exclamation-triangle-fill me-2"></i>异常检测系统</h5>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="alert alert-warning mb-3">
+                                                    <strong>注意: </strong>系统检测到3个潜在异常，请查看详情。
+                                                </div>
+                                                <div class="table-responsive">
+                                                    <table class="table table-striped table-hover">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>时间</th>
+                                                                <th>类型</th>
+                                                                <th>位置</th>
+                                                                <th>详情</th>
+                                                                <th>状态</th>
+                                                                <th>操作</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td>2023-11-15 08:23</td>
+                                                                <td>水质异常</td>
+                                                                <td>区域A-3</td>
+                                                                <td>pH值突然下降至6.2</td>
+                                                                <td><span class="badge bg-danger">未处理</span></td>
+                                                                <td>
+                                                                    <button class="btn btn-sm btn-primary">处理</button>
+                                                                    <button class="btn btn-sm btn-secondary">详情</button>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>2023-11-15 07:45</td>
+                                                                <td>设备异常</td>
+                                                                <td>区域B-2</td>
+                                                                <td>水下摄像头UW002信号不稳定</td>
+                                                                <td><span class="badge bg-warning">处理中</span></td>
+                                                                <td>
+                                                                    <button class="btn btn-sm btn-primary">处理</button>
+                                                                    <button class="btn btn-sm btn-secondary">详情</button>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>2023-11-14 22:10</td>
+                                                                <td>鱼群异常</td>
+                                                                <td>区域C-5</td>
+                                                                <td>鱼群密度异常增加</td>
+                                                                <td><span class="badge bg-warning">处理中</span></td>
+                                                                <td>
+                                                                    <button class="btn btn-sm btn-primary">处理</button>
+                                                                    <button class="btn btn-sm btn-secondary">详情</button>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- 鱼类智能识别 -->
+                                <div class="row mt-4">
+                                    <div class="col-md-6">
+                                        <div class="card">
+                                            <div class="card-header bg-info text-white">
+                                                <h5><i class="bi bi-camera-fill me-2"></i>鱼类智能识别</h5>
+                                            </div>
+                                            <div class="card-body">
                                                 <div class="mb-3">
-                                                    <label for="feedingSchedule" class="form-label">投喂时间表</label>
-                                                    <select class="form-select" id="feedingSchedule">
-                                                        <option>每天两次 (08:00, 18:00)</option>
-                                                        <option>每天三次 (08:00, 13:00, 18:00)</option>
-                                                        <option>每天四次 (06:00, 12:00, 18:00, 22:00)</option>
-                                                        <option>自定义...</option>
+                                                    <div class="input-group">
+                                                        <input type="file" class="form-control" id="fishImageUpload">
+                                                        <button class="btn btn-primary" id="analyzeFishImage">分析图像</button>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="border p-2 mb-3" style="height: 200px; background-color: #f8f9fa; display: flex; align-items: center; justify-content: center;">
+                                                            <span class="text-muted">上传图片预览区</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="card">
+                                                            <div class="card-header">识别结果</div>
+                                                            <div class="card-body">
+                                                                <p>请上传鱼类图片进行智能识别</p>
+                                                                <div id="recognitionResults" style="display: none;">
+                                                                    <div class="mb-2">
+                                                                        <strong>鱼类种类:</strong> <span id="fishSpecies">-</span>
+                                                                    </div>
+                                                                    <div class="mb-2">
+                                                                        <strong>可信度:</strong> <span id="recognitionConfidence">-</span>
+                                                                    </div>
+                                                                    <div class="mb-2">
+                                                                        <strong>估计大小:</strong> <span id="fishSize">-</span>
+                                                                    </div>
+                                                                    <div class="mb-2">
+                                                                        <strong>健康状况:</strong> <span id="fishHealth">-</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- 水质智能分析 -->
+                                    <div class="col-md-6">
+                                        <div class="card">
+                                            <div class="card-header bg-primary text-white">
+                                                <h5><i class="bi bi-droplet-half me-2"></i>水质智能分析</h5>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="mb-3">
+                                                    <label for="waterAreaSelect" class="form-label">选择区域</label>
+                                                    <select class="form-select" id="waterAreaSelect">
+                                                        <option value="all">全部区域</option>
+                                                        <option value="areaA">区域A</option>
+                                                        <option value="areaB">区域B</option>
+                                                        <option value="areaC">区域C</option>
                                                     </select>
                                                 </div>
-                                                <div class="d-grid">
-                                                    <button class="btn btn-primary" id="manualFeedingBtn">手动投喂</button>
+                                                <div class="card mb-3">
+                                                    <div class="card-body">
+                                                        <h6 class="card-title">水质综合评分</h6>
+                                                        <div class="progress mb-2" style="height: 25px;">
+                                                            <div class="progress-bar bg-success" role="progressbar" style="width: 85%;" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100">85分 - 优良</div>
+                                                        </div>
+                                                        <div class="small text-muted">最近更新: 2023-11-15 10:30</div>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="card mb-3">
-                                            <div class="card-header bg-warning text-white">
-                                                水质调节系统
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="form-check form-switch mb-3">
-                                                    <input class="form-check-input" type="checkbox"
-                                                        id="autoWaterQualitySwitch" checked>
-                                                    <label class="form-check-label"
-                                                        for="autoWaterQualitySwitch">自动调节</label>
-                                                </div>
-                                                <div class="mb-3">
-                                                    <label for="phTarget" class="form-label">目标pH值</label>
-                                                    <input type="range" class="form-range" min="6.0" max="8.5"
-                                                        step="0.1" value="7.2" id="phTarget">
-                                                    <div class="text-center" id="phTargetValue">7.2</div>
-                                                </div>
-                                                <div class="d-grid">
-                                                    <button class="btn btn-warning"
-                                                        id="waterQualityAdjustBtn">手动调节</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="card mb-3">
-                                            <div class="card-header bg-danger text-white">
-                                                紧急控制系统
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="alert alert-info" role="alert">
-                                                    <i class="bi bi-info-circle-fill me-2"></i>
-                                                    所有系统正常运行中
-                                                </div>
-                                                <div class="d-grid gap-2">
-                                                    <button class="btn btn-outline-danger" id="emergencyStopBtn">
-                                                        <i class="bi bi-exclamation-octagon-fill me-2"></i>紧急停止
-                                                    </button>
-                                                    <button class="btn btn-outline-warning" id="systemResetBtn">
-                                                        <i class="bi bi-arrow-repeat me-2"></i>系统重置
-                                                    </button>
-                                                    <button class="btn btn-outline-success" id="callSupportBtn">
-                                                        <i class="bi bi-telephone-fill me-2"></i>联系技术支持
-                                                    </button>
+                                                <div class="alert alert-primary">
+                                                    <h6><i class="bi bi-lightbulb-fill me-2"></i>智能建议</h6>
+                                                    <ul class="mb-0">
+                                                        <li>区域A的溶解氧含量略低，建议增加曝气设备运行时间</li>
+                                                        <li>区域C的pH值波动较大，建议检查水质调节系统</li>
+                                                        <li>整体水质状况良好，适合当前养殖鱼类生长</li>
+                                                    </ul>
                                                 </div>
                                             </div>
                                         </div>
@@ -348,6 +401,179 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/intelligence.js"></script>
-</body>
 
-</html>
+    <!-- 添加智能预测相关的JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 水质趋势预测图表
+            const waterQualityCtx = document.getElementById('waterQualityPredictionChart').getContext('2d');
+            const waterQualityChart = new Chart(waterQualityCtx, {
+                type: 'line',
+                data: {
+                    labels: ['6月10日', '6月11日', '6月12日', '6月13日', '6月14日', '6月15日', '6月16日'],
+                    datasets: [
+                        {
+                            label: 'pH值',
+                            data: [7.2, 7.3, 7.2, 7.1, 7.0, 6.8, 7.0],
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            tension: 0.1,
+                            fill: true
+                        },
+                        {
+                            label: '溶解氧(mg/L)',
+                            data: [8.5, 8.4, 8.6, 8.5, 8.3, 8.2, 8.4],
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            tension: 0.1,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: '未来7天水质参数预测'
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false
+                        }
+                    }
+                }
+            });
+            
+            // 鱼类数量预测图表
+            const fishCountCtx = document.getElementById('fishCountPredictionChart').getContext('2d');
+            const fishCountChart = new Chart(fishCountCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['6月', '7月', '8月', '9月', '10月', '11月'],
+                    datasets: [
+                        {
+                            label: '鲈鱼预测数量(吨)',
+                            data: [12, 15, 18, 16, 14, 13],
+                            backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: '草鱼预测数量(吨)',
+                            data: [8, 10, 13, 15, 14, 12],
+                            backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: '未来6个月鱼类产量预测'
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: '数量(吨)'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 模拟鱼类识别功能
+            document.getElementById('analyzeFishImage').addEventListener('click', function() {
+                const fileInput = document.getElementById('fishImageUpload');
+                if (fileInput.files.length > 0) {
+                    // 显示识别结果区域
+                    document.getElementById('recognitionResults').style.display = 'block';
+                    
+                    // 模拟识别结果
+                    document.getElementById('fishSpecies').textContent = '鲈鱼 (Lateolabrax japonicus)';
+                    document.getElementById('recognitionConfidence').textContent = '92%';
+                    document.getElementById('fishSize').textContent = '约 35cm';
+                    document.getElementById('fishHealth').textContent = '良好';
+                    
+                    // 提示用户
+                    alert('图像分析完成！');
+                } else {
+                    alert('请先上传鱼类图片！');
+                }
+            });
+            
+            // 水质预测时间范围切换
+            document.getElementById('waterQualityDay').addEventListener('click', function() {
+                waterQualityChart.data.labels = ['上午8点', '上午10点', '中午12点', '下午2点', '下午4点', '下午6点', '晚上8点'];
+                waterQualityChart.data.datasets[0].data = [7.2, 7.3, 7.4, 7.3, 7.2, 7.1, 7.0];
+                waterQualityChart.data.datasets[1].data = [8.5, 8.6, 8.7, 8.6, 8.5, 8.4, 8.3];
+                waterQualityChart.options.plugins.title.text = '今日水质参数预测';
+                waterQualityChart.update();
+            });
+            
+            document.getElementById('waterQualityWeek').addEventListener('click', function() {
+                waterQualityChart.data.labels = ['6月10日', '6月11日', '6月12日', '6月13日', '6月14日', '6月15日', '6月16日'];
+                waterQualityChart.data.datasets[0].data = [7.2, 7.3, 7.2, 7.1, 7.0, 6.8, 7.0];
+                waterQualityChart.data.datasets[1].data = [8.5, 8.4, 8.6, 8.5, 8.3, 8.2, 8.4];
+                waterQualityChart.options.plugins.title.text = '未来7天水质参数预测';
+                waterQualityChart.update();
+            });
+            
+            document.getElementById('waterQualityMonth').addEventListener('click', function() {
+                waterQualityChart.data.labels = ['6月', '7月', '8月', '9月', '10月', '11月', '12月'];
+                waterQualityChart.data.datasets[0].data = [7.2, 7.1, 7.0, 6.9, 7.0, 7.1, 7.2];
+                waterQualityChart.data.datasets[1].data = [8.5, 8.3, 8.0, 7.8, 8.0, 8.2, 8.4];
+                waterQualityChart.options.plugins.title.text = '未来6个月水质参数预测';
+                waterQualityChart.update();
+            });
+            
+            // 鱼类数量预测时间范围切换
+            document.getElementById('fishCountQuarter').addEventListener('click', function() {
+                fishCountChart.data.labels = ['6月', '7月', '8月'];
+                fishCountChart.data.datasets[0].data = [12, 15, 18];
+                fishCountChart.data.datasets[1].data = [8, 10, 13];
+                fishCountChart.options.plugins.title.text = '未来3个月鱼类产量预测';
+                fishCountChart.update();
+            });
+            
+            document.getElementById('fishCountHalfYear').addEventListener('click', function() {
+                fishCountChart.data.labels = ['6月', '7月', '8月', '9月', '10月', '11月'];
+                fishCountChart.data.datasets[0].data = [12, 15, 18, 16, 14, 13];
+                fishCountChart.data.datasets[1].data = [8, 10, 13, 15, 14, 12];
+                fishCountChart.options.plugins.title.text = '未来6个月鱼类产量预测';
+                fishCountChart.update();
+            });
+            
+            document.getElementById('fishCountYear').addEventListener('click', function() {
+                fishCountChart.data.labels = ['6月', '8月', '10月', '12月', '2月', '4月'];
+                fishCountChart.data.datasets[0].data = [12, 18, 14, 10, 8, 15];
+                fishCountChart.data.datasets[1].data = [8, 13, 14, 9, 6, 11];
+                fishCountChart.options.plugins.title.text = '未来一年鱼类产量预测';
+                fishCountChart.update();
+            });
+            
+            // 导出预测报告
+            document.getElementById('exportWaterPrediction').addEventListener('click', function() {
+                alert('水质预测报告导出功能已触发');
+            });
+            
+            document.getElementById('exportFishPrediction').addEventListener('click', function() {
+                alert('鱼类数量预测报告导出功能已触发');
+            });
+        });
+    </script>

@@ -118,19 +118,451 @@
                 </div>
 
                 <!-- 水质历史数据图表 -->
-                <div class="row mb-4">
-                    <div class="col-md-12">
-                        <div class="card">
-                            <div class="card-header">
-                                <h5>水质历史数据</h5>
+                <!-- 水质历史数据部分 -->
+                <div class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">水质历史数据</h5>
+                        <div>
+                            <div class="btn-group me-2">
+                                <button type="button" class="btn btn-sm btn-outline-primary" id="lastWeek">最近一周</button>
+                                <button type="button" class="btn btn-sm btn-outline-primary" id="lastMonth">最近一月</button>
+                                <button type="button" class="btn btn-sm btn-outline-primary" id="lastYear">最近一年</button>
                             </div>
-                            <div class="card-body">
-                                <canvas id="waterQualityHistoryChart"></canvas>
+                            <div class="btn-group">
+                                <button class="btn btn-sm btn-success" id="exportWaterData">
+                                    <i class="bi bi-download"></i> 导出数据
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="dataType">数据类型</label>
+                                    <select class="form-select" id="dataType">
+                                        <option value="temperature">水温</option>
+                                        <option value="ph">pH值</option>
+                                        <option value="oxygen">溶解氧</option>
+                                        <option value="turbidity">浊度</option>
+                                        <option value="conductivity">电导率</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="startDate">开始日期</label>
+                                    <input type="date" class="form-control" id="startDate">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="endDate">结束日期</label>
+                                    <input type="date" class="form-control" id="endDate">
+                                </div>
+                            </div>
+                            <div class="col-md-3 d-flex align-items-end">
+                                <button class="btn btn-primary w-100" id="queryData">查询数据</button>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-8">
+                                <canvas id="waterQualityHistoryChart" height="300"></canvas>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h6 class="mb-0">数据统计</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <table class="table table-sm">
+                                            <tbody>
+                                                <tr>
+                                                    <td>最大值</td>
+                                                    <td id="maxValue">-</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>最小值</td>
+                                                    <td id="minValue">-</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>平均值</td>
+                                                    <td id="avgValue">-</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>标准差</td>
+                                                    <td id="stdValue">-</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>超标次数</td>
+                                                    <td id="exceedCount">-</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                
+                                <div class="alert alert-info mt-3">
+                                    <h6><i class="bi bi-info-circle-fill me-2"></i>参考标准</h6>
+                                    <div id="standardInfo">
+                                        <small>水温: 适宜范围 18-28°C</small><br>
+                                        <small>pH值: 适宜范围 6.5-8.5</small><br>
+                                        <small>溶解氧: 不低于 5 mg/L</small><br>
+                                        <small>浊度: 不高于 10 NTU</small><br>
+                                        <small>电导率: 适宜范围 200-800 μS/cm</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <h6>历史数据记录</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>时间</th>
+                                                <th>水温(°C)</th>
+                                                <th>pH值</th>
+                                                <th>溶解氧(mg/L)</th>
+                                                <th>浊度(NTU)</th>
+                                                <th>电导率(μS/cm)</th>
+                                                <th>状态</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="historyDataTable">
+                                            <!-- 数据将通过JavaScript动态加载 -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <nav>
+                                    <ul class="pagination justify-content-center">
+                                        <li class="page-item disabled"><a class="page-link" href="#">上一页</a></li>
+                                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                        <li class="page-item"><a class="page-link" href="#">下一页</a></li>
+                                    </ul>
+                                </nav>
                             </div>
                         </div>
                     </div>
                 </div>
-
+                
+                <!-- 添加水质历史数据相关的JavaScript -->
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        // 初始化日期选择器
+                        const today = new Date();
+                        const lastMonth = new Date();
+                        lastMonth.setMonth(today.getMonth() - 1);
+                        
+                        document.getElementById('startDate').valueAsDate = lastMonth;
+                        document.getElementById('endDate').valueAsDate = today;
+                        
+                        // 初始化图表
+                        const ctx = document.getElementById('waterQualityHistoryChart').getContext('2d');
+                        const waterQualityChart = new Chart(ctx, {
+                            type: 'line',
+                            data: {
+                                labels: [],
+                                datasets: [{
+                                    label: '水温(°C)',
+                                    data: [],
+                                    borderColor: 'rgba(75, 192, 192, 1)',
+                                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                    tension: 0.1,
+                                    fill: true
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                plugins: {
+                                    title: {
+                                        display: true,
+                                        text: '水质历史数据趋势'
+                                    },
+                                    tooltip: {
+                                        mode: 'index',
+                                        intersect: false
+                                    }
+                                },
+                                scales: {
+                                    x: {
+                                        title: {
+                                            display: true,
+                                            text: '日期'
+                                        }
+                                    },
+                                    y: {
+                                        title: {
+                                            display: true,
+                                            text: '水温(°C)'
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                        
+                        // 生成模拟数据
+                        function generateMockData(days, dataType) {
+                            const data = [];
+                            const labels = [];
+                            const endDate = new Date(document.getElementById('endDate').value);
+                            
+                            for (let i = 0; i < days; i++) {
+                                const date = new Date(endDate);
+                                date.setDate(date.getDate() - (days - i - 1));
+                                labels.push(date.toLocaleDateString());
+                                
+                                let value;
+                                switch(dataType) {
+                                    case 'temperature':
+                                        value = (Math.random() * 5 + 20).toFixed(1); // 20-25°C
+                                        break;
+                                    case 'ph':
+                                        value = (Math.random() * 2 + 6.5).toFixed(1); // 6.5-8.5
+                                        break;
+                                    case 'oxygen':
+                                        value = (Math.random() * 5 + 5).toFixed(1); // 5-10 mg/L
+                                        break;
+                                    case 'turbidity':
+                                        value = (Math.random() * 10 + 2).toFixed(1); // 2-12 NTU
+                                        break;
+                                    case 'conductivity':
+                                        value = (Math.random() * 400 + 200).toFixed(1); // 200-600 μS/cm
+                                        break;
+                                    default:
+                                        value = (Math.random() * 10).toFixed(1);
+                                }
+                                data.push(parseFloat(value));
+                            }
+                            
+                            return { labels, data };
+                        }
+                        
+                        // 更新图表数据
+                        function updateChart(dataType, days) {
+                            const { labels, data } = generateMockData(days, dataType);
+                            
+                            let label, color;
+                            switch(dataType) {
+                                case 'temperature':
+                                    label = '水温(°C)';
+                                    color = 'rgba(75, 192, 192, 1)';
+                                    break;
+                                case 'ph':
+                                    label = 'pH值';
+                                    color = 'rgba(153, 102, 255, 1)';
+                                    break;
+                                case 'oxygen':
+                                    label = '溶解氧(mg/L)';
+                                    color = 'rgba(54, 162, 235, 1)';
+                                    break;
+                                case 'turbidity':
+                                    label = '浊度(NTU)';
+                                    color = 'rgba(255, 159, 64, 1)';
+                                    break;
+                                case 'conductivity':
+                                    label = '电导率(μS/cm)';
+                                    color = 'rgba(255, 99, 132, 1)';
+                                    break;
+                            }
+                            
+                            waterQualityChart.data.labels = labels;
+                            waterQualityChart.data.datasets[0].label = label;
+                            waterQualityChart.data.datasets[0].data = data;
+                            waterQualityChart.data.datasets[0].borderColor = color;
+                            waterQualityChart.data.datasets[0].backgroundColor = color.replace('1)', '0.2)');
+                            
+                            waterQualityChart.options.scales.y.title.text = label;
+                            
+                            waterQualityChart.update();
+                            
+                            // 更新统计数据
+                            updateStatistics(data, dataType);
+                            
+                            // 更新表格数据
+                            updateTableData(labels, dataType);
+                        }
+                        
+                        // 更新统计数据
+                        function updateStatistics(data, dataType) {
+                            const max = Math.max(...data);
+                            const min = Math.min(...data);
+                            const avg = (data.reduce((a, b) => a + b, 0) / data.length).toFixed(2);
+                            
+                            // 计算标准差
+                            const mean = data.reduce((a, b) => a + b, 0) / data.length;
+                            const std = Math.sqrt(data.map(x => Math.pow(x - mean, 2)).reduce((a, b) => a + b, 0) / data.length).toFixed(2);
+                            
+                            // 计算超标次数
+                            let exceedCount = 0;
+                            switch(dataType) {
+                                case 'temperature':
+                                    exceedCount = data.filter(v => v < 18 || v > 28).length;
+                                    break;
+                                case 'ph':
+                                    exceedCount = data.filter(v => v < 6.5 || v > 8.5).length;
+                                    break;
+                                case 'oxygen':
+                                    exceedCount = data.filter(v => v < 5).length;
+                                    break;
+                                case 'turbidity':
+                                    exceedCount = data.filter(v => v > 10).length;
+                                    break;
+                                case 'conductivity':
+                                    exceedCount = data.filter(v => v < 200 || v > 800).length;
+                                    break;
+                            }
+                            
+                            document.getElementById('maxValue').textContent = max;
+                            document.getElementById('minValue').textContent = min;
+                            document.getElementById('avgValue').textContent = avg;
+                            document.getElementById('stdValue').textContent = std;
+                            document.getElementById('exceedCount').textContent = exceedCount;
+                        }
+                        
+                        // 更新表格数据
+                        function updateTableData(labels, selectedDataType) {
+                            const tableBody = document.getElementById('historyDataTable');
+                            tableBody.innerHTML = '';
+                            
+                            for (let i = 0; i < labels.length; i++) {
+                                if (i >= 10) break; // 只显示前10条数据
+                                
+                                const row = document.createElement('tr');
+                                
+                                // 日期
+                                const dateCell = document.createElement('td');
+                                dateCell.textContent = labels[i];
+                                row.appendChild(dateCell);
+                                
+                                // 水温
+                                const tempCell = document.createElement('td');
+                                const tempValue = (Math.random() * 5 + 20).toFixed(1);
+                                tempCell.textContent = tempValue;
+                                if (selectedDataType === 'temperature') {
+                                    tempCell.classList.add('table-primary', 'fw-bold');
+                                }
+                                row.appendChild(tempCell);
+                                
+                                // pH值
+                                const phCell = document.createElement('td');
+                                const phValue = (Math.random() * 2 + 6.5).toFixed(1);
+                                phCell.textContent = phValue;
+                                if (selectedDataType === 'ph') {
+                                    phCell.classList.add('table-primary', 'fw-bold');
+                                }
+                                row.appendChild(phCell);
+                                
+                                // 溶解氧
+                                const oxygenCell = document.createElement('td');
+                                const oxygenValue = (Math.random() * 5 + 5).toFixed(1);
+                                oxygenCell.textContent = oxygenValue;
+                                if (selectedDataType === 'oxygen') {
+                                    oxygenCell.classList.add('table-primary', 'fw-bold');
+                                }
+                                row.appendChild(oxygenCell);
+                                
+                                // 浊度
+                                const turbidityCell = document.createElement('td');
+                                const turbidityValue = (Math.random() * 10 + 2).toFixed(1);
+                                turbidityCell.textContent = turbidityValue;
+                                if (selectedDataType === 'turbidity') {
+                                    turbidityCell.classList.add('table-primary', 'fw-bold');
+                                }
+                                row.appendChild(turbidityCell);
+                                
+                                // 电导率
+                                const conductivityCell = document.createElement('td');
+                                const conductivityValue = (Math.random() * 400 + 200).toFixed(1);
+                                conductivityCell.textContent = conductivityValue;
+                                if (selectedDataType === 'conductivity') {
+                                    conductivityCell.classList.add('table-primary', 'fw-bold');
+                                }
+                                row.appendChild(conductivityCell);
+                                
+                                // 状态
+                                const statusCell = document.createElement('td');
+                                const isNormal = Math.random() > 0.2;
+                                if (isNormal) {
+                                    statusCell.innerHTML = '<span class="badge bg-success">正常</span>';
+                                } else {
+                                    statusCell.innerHTML = '<span class="badge bg-warning">异常</span>';
+                                }
+                                row.appendChild(statusCell);
+                                
+                                tableBody.appendChild(row);
+                            }
+                        }
+                        
+                        // 绑定事件处理程序
+                        document.getElementById('queryData').addEventListener('click', function() {
+                            const dataType = document.getElementById('dataType').value;
+                            const startDate = new Date(document.getElementById('startDate').value);
+                            const endDate = new Date(document.getElementById('endDate').value);
+                            const days = Math.round((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+                            
+                            updateChart(dataType, days);
+                        });
+                        
+                        document.getElementById('lastWeek').addEventListener('click', function() {
+                            const today = new Date();
+                            const lastWeek = new Date();
+                            lastWeek.setDate(today.getDate() - 7);
+                            
+                            document.getElementById('startDate').valueAsDate = lastWeek;
+                            document.getElementById('endDate').valueAsDate = today;
+                            
+                            const dataType = document.getElementById('dataType').value;
+                            updateChart(dataType, 8);
+                        });
+                        
+                        document.getElementById('lastMonth').addEventListener('click', function() {
+                            const today = new Date();
+                            const lastMonth = new Date();
+                            lastMonth.setMonth(today.getMonth() - 1);
+                            
+                            document.getElementById('startDate').valueAsDate = lastMonth;
+                            document.getElementById('endDate').valueAsDate = today;
+                            
+                            const dataType = document.getElementById('dataType').value;
+                            updateChart(dataType, 30);
+                        });
+                        
+                        document.getElementById('lastYear').addEventListener('click', function() {
+                            const today = new Date();
+                            const lastYear = new Date();
+                            lastYear.setFullYear(today.getFullYear() - 1);
+                            
+                            document.getElementById('startDate').valueAsDate = lastYear;
+                            document.getElementById('endDate').valueAsDate = today;
+                            
+                            const dataType = document.getElementById('dataType').value;
+                            updateChart(dataType, 365);
+                        });
+                        
+                        document.getElementById('dataType').addEventListener('change', function() {
+                            const dataType = this.value;
+                            const startDate = new Date(document.getElementById('startDate').value);
+                            const endDate = new Date(document.getElementById('endDate').value);
+                            const days = Math.round((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+                            
+                            updateChart(dataType, days);
+                        });
+                        
+                        document.getElementById('exportWaterData').addEventListener('click', function() {
+                            alert('数据导出功能已触发，将导出当前查询的水质历史数据');
+                        });
+                        
+                        // 初始加载
+                        updateChart('temperature', 30);
+                    });
+                </script>
+                
                 <!-- 水下设备状态 -->
                 <div class="row mb-4">
                     <div class="col-md-6">
