@@ -252,39 +252,98 @@
                     <div class="col-md-12">
                         <div class="card text-white bg-info mb-3">
                             <div class="card-header d-flex justify-content-between align-items-center">
-                                <span>设备状态</span>
-                                <span class="badge bg-light text-info">最后更新: <span id="lastUpdate">-</span></span>
+                                <span><i class="bi bi-hdd-rack-fill me-2"></i>设备状态</span>
+                                <div>
+                                    <span class="badge bg-success rounded-pill">在线率: 85%</span>
+                                    <span class="badge bg-light text-info ms-2">最后更新: <span id="lastUpdate">-</span></span>
+                                </div>
                             </div>
                             <div class="card-body">
                                 <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="progress-ring mb-3" data-percent="85">
-                                            <svg width="20" height="20">
-                                                <circle class="progress-ring__circle" stroke-width="6"
-                                                    fill="transparent" r="9" cx="10" cy="10" />
-                                            </svg>
-                                            <div class="progress-text">
-                                                <h5>在线率</h5>
-                                                <span>85%</span>
+                                    <div class="col-md-7">
+                                        <div class="position-relative mb-4">
+                                            <canvas id="deviceStatusChart" height="250"></canvas>
+                                            <div class="position-absolute top-50 start-50 translate-middle text-center">
+                                                <div class="bg-white rounded-circle p-3 shadow-sm" style="width: 100px; height: 100px; display: flex; flex-direction: column; justify-content: center;">
+                                                    <span class="text-muted small">在线率</span>
+                                                    <h3 class="mb-0 text-info">85%</h3>
+                                                </div>
                                             </div>
                                         </div>
-                                        <canvas id="deviceTypeChart"></canvas>
+                                        <div class="d-flex justify-content-center">
+                                            <div class="d-flex align-items-center me-3">
+                                                <span class="badge rounded-pill me-1" style="width: 15px; height: 15px; padding: 0; background-color: #4dc9f6;"></span>
+                                                <small class="text-white">正常运行</small>
+                                            </div>
+                                            <div class="d-flex align-items-center me-3">
+                                                <span class="badge rounded-pill me-1" style="width: 15px; height: 15px; padding: 0; background-color: #f67019;"></span>
+                                                <small class="text-white">需要维护</small>
+                                            </div>
+                                            <div class="d-flex align-items-center me-3">
+                                                <span class="badge rounded-pill me-1" style="width: 15px; height: 15px; padding: 0; background-color: #f53794;"></span>
+                                                <small class="text-white">故障设备</small>
+                                            </div>
+                                            <div class="d-flex align-items-center">
+                                                <span class="badge rounded-pill me-1" style="width: 15px; height: 15px; padding: 0; background-color: #537bc4;"></span>
+                                                <small class="text-white">离线设备</small>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="col-md-6">
-                                        <h6 class="text-warning mb-3"><i class="bi bi-bell-fill me-2"></i>最近报警记录</h6>
-                                        <div class="alert-list" style="max-height: 200px; overflow-y: auto;">
+                                    <div class="col-md-5">
+                                        <div class="bg-white p-3 rounded shadow-sm h-100">
+                                            <h6 class="text-info border-bottom pb-2 mb-3">设备状态详情</h6>
+                                            <div class="row mb-3">
+                                                <div class="col-6">
+                                                    <div class="d-flex align-items-center">
+                                                        <i class="bi bi-check-circle-fill text-info fs-4 me-2"></i>
+                                                        <div>
+                                                            <div class="text-dark fw-bold">42</div>
+                                                            <div class="text-muted small">正常运行</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6">
+                                                    <div class="d-flex align-items-center">
+                                                        <i class="bi bi-exclamation-triangle-fill text-warning fs-4 me-2"></i>
+                                                        <div>
+                                                            <div class="text-dark fw-bold">15</div>
+                                                            <div class="text-muted small">需要维护</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row mb-3">
+                                                <div class="col-6">
+                                                    <div class="d-flex align-items-center">
+                                                        <i class="bi bi-x-circle-fill text-danger fs-4 me-2"></i>
+                                                        <div>
+                                                            <div class="text-dark fw-bold">8</div>
+                                                            <div class="text-muted small">故障设备</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6">
+                                                    <div class="d-flex align-items-center">
+                                                        <i class="bi bi-dash-circle-fill text-secondary fs-4 me-2"></i>
+                                                        <div>
+                                                            <div class="text-dark fw-bold">12</div>
+                                                            <div class="text-muted small">离线设备</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <h6 class="text-warning mb-2 mt-4"><i class="bi bi-bell-fill me-2"></i>最近报警记录</h6>
                                             <div class="alert alert-danger py-2 mb-2">
                                                 <div class="d-flex justify-content-between small">
                                                     <span>水质传感器 #12</span>
                                                     <span>3分钟前</span>
                                                 </div>
-                                                <div class="text-muted">pH值超出阈值</div>
+                                                <div>pH值超出阈值</div>
                                             </div>
-                                            <!-- 更多报警记录结构重复 -->
-                                        </div>
-                                        <div class="mt-3">
-                                            <span class="badge bg-success"><i class="bi bi-tools me-1"></i>维护正常</span>
-                                            <span class="badge bg-secondary ms-2">下次维护: 15天后</span>
+                                            <div class="d-flex justify-content-between mt-3">
+                                                <span class="badge bg-success"><i class="bi bi-tools me-1"></i>维护正常</span>
+                                                <span class="badge bg-secondary">下次维护: 15天后</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -292,6 +351,53 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- 更新设备状态图表脚本 -->
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        // 更新最后更新时间
+                        const now = new Date();
+                        document.getElementById('lastUpdate').textContent = now.toLocaleString();
+                        
+                        // 设备状态图表
+                        const deviceStatusCtx = document.getElementById('deviceStatusChart').getContext('2d');
+                        const deviceStatusChart = new Chart(deviceStatusCtx, {
+                            type: 'doughnut',
+                            data: {
+                                labels: ['正常运行', '需要维护', '故障设备', '离线设备'],
+                                datasets: [{
+                                    data: [42, 15, 8, 12],
+                                    backgroundColor: ['#4dc9f6', '#f67019', '#f53794', '#537bc4'],
+                                    borderColor: ['rgba(255, 255, 255, 0.8)', 'rgba(255, 255, 255, 0.8)', 'rgba(255, 255, 255, 0.8)', 'rgba(255, 255, 255, 0.8)'],
+                                    borderWidth: 2
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                cutout: '65%',
+                                plugins: {
+                                    legend: {
+                                        display: false
+                                    },
+                                    tooltip: {
+                                        callbacks: {
+                                            label: function(context) {
+                                                const label = context.label || '';
+                                                const value = context.raw || 0;
+                                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                                const percentage = Math.round((value / total) * 100);
+                                                return `${label}: ${value}台 (${percentage}%)`;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                        
+                        // 删除旧的设备类型饼图初始化代码
+                        // 原有的 progressRing 相关代码也可以删除，因为我们使用了新的环形图
+                    });
+                </script>
 
                 <!-- 水质数据图表 -->
                 <div class="row mb-4">
