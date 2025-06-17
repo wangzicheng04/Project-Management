@@ -96,7 +96,12 @@
 
         <div class="col-md-8">
             <div class="card mb-4">
-                <div class="card-header bg-warning text-dark">数据类型统计</div>
+                <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+                    <span>数据类型统计</span>
+                    <button class="btn btn-sm btn-outline-dark" id="downloadDataTypeChart">
+                        <i class="bi bi-download"></i> 导出图表
+                    </button>
+                </div>
                 <div class="card-body">
                     <canvas id="dataTypeChart"></canvas>
                 </div>
@@ -185,6 +190,30 @@
         title: city.name
         });
     });
+
+    document.getElementById('downloadDataTypeChart').addEventListener('click', function() {
+        downloadChart('dataTypeChart', '数据类型统计图.png');
+    });
+
+    /**
+     * @param {string} canvasId - a canvas's id
+     * @param {string} filename - the file's name
+     */
+    function downloadChart(canvasId, filename) {
+        const chartInstance = Chart.getChart(canvasId);
+        if (chartInstance) {
+            const url = chartInstance.toBase64Image('image/png', 1);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } else {
+            console.error('无法找到图表实例:', canvasId);
+            alert('下载失败，无法找到图表实例。');
+        }
+    }
 </script>
 </body>
 </html>
