@@ -304,6 +304,9 @@
                             <div class="card-header d-flex justify-content-between align-items-center">
                                 <span><i class="bi bi-hdd-rack-fill me-2"></i>设备状态</span>
                                 <div>
+                                    <button class="btn btn-sm btn-outline-light me-2" id="downloadDeviceStatusBtn">
+                                        <i class="bi bi-download"></i> 导出
+                                    </button>
                                     <span class="badge bg-success rounded-pill">在线率: 85%</span>
                                     <span class="badge bg-light text-info ms-2">最后更新: <span id="lastUpdate">-</span></span>
                                 </div>
@@ -473,8 +476,11 @@
                     </div>
                     <div class="col-md-6">
                         <div class="card">
-                            <div class="card-header">
+                            <div class="card-header d-flex justify-content-between align-items-center">
                                 <h5>鱼类分布情况</h5>
+                                <button class="btn btn-sm btn-outline-success" id="downloadFishChartBtn">
+                                    <i class="bi bi-download"></i> 导出
+                                </button>
                             </div>
                             <div class="card-body">
                                 <canvas id="fishDistributionChart"></canvas>

@@ -1,3 +1,23 @@
+/**
+ * @param {string} canvasId - a canvas's id
+ * @param {string} filename - the file's name
+ */
+function downloadChart(canvasId, filename) {
+    const chartInstance = Chart.getChart(canvasId);
+    if (chartInstance) {
+        const url = chartInstance.toBase64Image('image/png', 1);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    } else {
+        console.error('无法找到图表实例:', canvasId);
+        alert('下载失败，无法找到图表实例。');
+    }
+}
+
 // 水质数据图表配置
 const generateMockData = () => {
   const dates = Array.from({length:7}, (_,i) => {
@@ -57,17 +77,7 @@ const initChartControls = () => {
     });
 
     document.getElementById('exportData').addEventListener('click', () => {
-        const chart = Chart.getChart('waterQualityChart');
-        if (chart) {
-            const csvContent = '数据,日期,' + chart.data.labels.join(',') + '\n' +
-                chart.data.datasets.map(d => `${d.label},${d.data.join(',')}`).join('\n');
-            const blob = new Blob([csvContent], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `水质数据_${new Date().toISOString().slice(0,10)}.csv`;
-            a.click();
-        }
+        downloadChart('waterQualityChart', '水质数据趋势图.png');
     });
 };
 
@@ -130,3 +140,21 @@ initChartControls();
 initVideoControls();
 initWaterQualityChart(document.getElementById('startDate').value, document.getElementById('endDate').value);
 initFishDistributionChart();
+
+document.addEventListener('DOMContentLoaded', function() {
+    // 为鱼类分布图表下载按钮添加监听
+    const downloadFishBtn = document.getElementById('downloadFishChartBtn');
+    if(downloadFishBtn) {
+        downloadFishBtn.addEventListener('click', () => {
+            downloadChart('fishDistributionChart', '鱼类分布图.png');
+        });
+    }
+
+    // 为设备状态图表下载按钮添加监听
+    const downloadDeviceStatusBtn = document.getElementById('downloadDeviceStatusBtn');
+    if(downloadDeviceStatusBtn) {
+        downloadDeviceStatusBtn.addEventListener('click', () => {
+            downloadChart('deviceStatusChart', '设备状态图.png');
+        });
+    }
+});

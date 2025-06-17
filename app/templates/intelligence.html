@@ -122,8 +122,11 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="card mb-3">
-                                            <div class="card-header bg-primary text-white">
-                                                水质趋势预测
+                                            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                                                <span><i class="bi bi-droplet-fill me-2"></i>水质趋势预测</span>
+                                                <button class="btn btn-sm btn-light" id="downloadWaterPredictionBtn">
+                                                    <i class="bi bi-download"></i> 导出图表
+                                                </button>
                                             </div>
                                             <div class="card-body">
                                                 <canvas id="waterQualityPredictionChart"></canvas>
@@ -224,10 +227,15 @@
                                         <div class="card mb-3">
                                             <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                                                 <span><i class="bi bi-droplet-fill me-2"></i>水质趋势预测</span>
-                                                <div class="btn-group">
-                                                    <button class="btn btn-sm btn-light" id="waterQualityDay">日</button>
-                                                    <button class="btn btn-sm btn-light" id="waterQualityWeek">周</button>
-                                                    <button class="btn btn-sm btn-light" id="waterQualityMonth">月</button>
+                                                <div>
+                                                    <div class="btn-group">
+                                                        <button class="btn btn-sm btn-light" id="waterQualityDay">日</button>
+                                                        <button class="btn btn-sm btn-light" id="waterQualityWeek">周</button>
+                                                        <button class="btn btn-sm btn-light" id="waterQualityMonth">月</button>
+                                                    </div>
+                                                    <button class="btn btn-sm btn-light ms-2" id="downloadWaterPrediction">
+                                                        <i class="bi bi-download"></i>
+                                                    </button>
                                                 </div>
                                             </div>
                                             <div class="card-body">
@@ -251,14 +259,19 @@
                                     <!-- 鱼类数量预测 -->
                                     <div class="col-md-6">
                                         <div class="card mb-3">
-                                            <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
-                                                <span><i class="bi bi-bar-chart-fill me-2"></i>鱼类数量预测</span>
+                                        <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                                            <span><i class="bi bi-bar-chart-fill me-2"></i>鱼类数量预测</span>
+                                            <div>
                                                 <div class="btn-group">
                                                     <button class="btn btn-sm btn-light" id="fishCountQuarter">季度</button>
                                                     <button class="btn btn-sm btn-light" id="fishCountHalfYear">半年</button>
                                                     <button class="btn btn-sm btn-light" id="fishCountYear">年</button>
                                                 </div>
+                                                <button class="btn btn-sm btn-light ms-2" id="downloadFishCountPrediction">
+                                                    <i class="bi bi-download"></i>
+                                                </button>
                                             </div>
+                                        </div>
                                             <div class="card-body">
                                                 <canvas id="fishCountPredictionChart" height="250"></canvas>
                                                 <div class="mt-3">
@@ -431,8 +444,11 @@
                                     <!-- 鱼类运动轨迹追踪 -->
                                     <div class="col-md-12 mt-4">
                                         <div class="card">
-                                            <div class="card-header bg-secondary text-white">
+                                            <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
                                                 <h5><i class="bi bi-map-fill me-2"></i>鱼类运动轨迹追踪</h5>
+                                                <button class="btn btn-sm btn-light" id="downloadFishMovement">
+                                                    <i class="bi bi-download"></i> 导出图表
+                                                </button>
                                             </div>
                                             <div class="card-body">
                                                 <canvas id="fishMovementChart" height="300"></canvas>
@@ -478,6 +494,26 @@
 
     <!-- 添加智能预测相关的JavaScript -->
     <script>
+        /**
+         * @param {string} canvasId - a canvas's id
+         * @param {string} filename - the file's name
+         */
+        function downloadChart(canvasId, filename) {
+            const chartInstance = Chart.getChart(canvasId);
+            if (chartInstance) {
+                const url = chartInstance.toBase64Image('image/png', 1);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = filename;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } else {
+                console.error('无法找到图表实例:', canvasId);
+                alert('下载失败，无法找到图表实例。');
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             // 水质趋势预测图表
             const waterQualityCtx = document.getElementById('waterQualityPredictionChart').getContext('2d');
@@ -650,6 +686,21 @@
                 alert('鱼类数量预测报告导出功能已触发');
             });
 
+            document.getElementById('downloadWaterPrediction').addEventListener('click', function() {
+                downloadChart('waterQualityPredictionChart', '水质趋势预测图.png');
+            });
+
+            document.getElementById('downloadFishCountPrediction').addEventListener('click', function() {
+                downloadChart('fishCountPredictionChart', '鱼类数量预测图.png');
+            });
+
+            document.getElementById('downloadFishMovement').addEventListener('click', function() {
+                downloadChart('fishMovementChart', '鱼类运动轨迹图.png');
+            });
+
+            document.getElementById('downloadWaterPredictionBtn').addEventListener('click', function() {
+                downloadChart('waterQualityPredictionChart', '水质趋势预测图.png');
+            });
 
             // 鱼类运动轨迹追踪图表
             const fishMovementCtx = document.getElementById('fishMovementChart').getContext('2d');
