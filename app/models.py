@@ -48,3 +48,27 @@ class WeatherData(db.Model):
     
     def __repr__(self):
         return f'<WeatherData {self.timestamp}>'
+
+class WaterQuality(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    province = db.Column(db.String(100))
+    basin = db.Column(db.String(100))
+    section_name = db.Column(db.String(200))
+    # 关键改动：将 monitor_time 从字符串改为 DateTime 类型
+    monitor_time = db.Column(db.DateTime, nullable=False, index=True)
+    quality_level = db.Column(db.String(10))
+    temperature = db.Column(db.Float)
+    pH = db.Column(db.Float)
+    dissolved_oxygen = db.Column(db.Float)
+    conductivity = db.Column(db.Float)
+    turbidity = db.Column(db.Float)
+    permanganate_index = db.Column(db.Float)
+    ammonia_nitrogen = db.Column(db.Float)
+    total_phosphorus = db.Column(db.Float)
+    total_nitrogen = db.Column(db.Float)
+    chlorophyll_a = db.Column(db.Float)
+    algae_density = db.Column(db.Float)
+    station_status = db.Column(db.String(50))
+
+    def __repr__(self):
+        return f'<WaterQuality {self.section_name} @ {self.monitor_time}>'
