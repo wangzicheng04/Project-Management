@@ -1,14 +1,24 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from datetime import datetime
+from werkzeug.security import generate_password_hash, check_password_hash
 
 db = SQLAlchemy()
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(150), unique=True, nullable=False)
-    password = db.Column(db.String(150), nullable=False)
+    password_hash = db.Column(db.String(150), nullable=False)
     role = db.Column(db.String(20), nullable=False, default='user')  # 'user' 或 'admin'
+    
+    def set_password(self, password):
+        """创建哈希密码"""
+        self.password_hash = generate_password_hash(password)
+
+    # 3. 添加 check_password 方法
+    def check_password(self, password):
+        """检查哈希密码"""
+        return check_password_hash(self.password_hash, password)
 
 # 添加海洋牧场位置模型
 class RanchLocation(db.Model):

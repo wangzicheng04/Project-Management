@@ -106,9 +106,8 @@
                 </div>
 
                 <div class="row">
-                    <!-- 功能卡片 -->
-                    {% for card in [
-                        {'color': 'primary', 'icon': 'people-fill', 'title': '用户管理', 'text': '查看、编辑或删除用户账户。', 'btn': '管理用户'},
+                    {% set cards = [
+                        {'color': 'primary', 'icon': 'people-fill', 'title': '用户管理', 'text': '查看、编辑或删除用户账户。', 'btn': '管理用户', 'link': url_for('main.manage_users_page')},
                         {'color': 'warning', 'icon': 'file-earmark-text', 'title': '系统日志', 'text': '查看系统活动日志、操作历史和安全记录。', 'btn': '查看日志'},
                         {'color': 'danger', 'icon': 'shield-lock', 'title': '权限审查', 'text': '分配角色、管理模块权限与访问控制。', 'btn': '设置权限'},
                         {'color': 'info', 'icon': 'sliders', 'title': '系统设置', 'text': '配置平台参数，系统初始化或备份。', 'btn': '系统配置'},
@@ -117,6 +116,8 @@
                         {'color': 'success', 'icon': 'megaphone', 'title': '通知管理', 'text': '发布系统通知、警报推送和用户公告。', 'btn': '发送通知'},
                         {'color': 'warning text-dark', 'icon': 'plug', 'title': '接口管理', 'text': '管理第三方系统对接与API访问权限。', 'btn': '接口配置'}
                     ] %}
+
+                    {% for card in cards %}
                     <div class="col-md-6">
                         <div class="card mb-4">
                             <div class="card-header bg-{{ card.color }} text-white">
@@ -124,7 +125,7 @@
                             </div>
                             <div class="card-body">
                                 <p>{{ card.text }}</p>
-                                <a href="#" class="btn btn-outline-{{ card.color.split(' ')[0] }} btn-sm">{{ card.btn }}</a>
+                                <a href="{{ card.link | default('#') }}" class="btn btn-outline-{{ card.color.split(' ')[0] }} btn-sm">{{ card.btn }}</a>
                             </div>
                         </div>
                     </div>

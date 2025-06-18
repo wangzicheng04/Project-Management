@@ -16,7 +16,7 @@ def login():
             return render_template('login.html')
 
         user = User.query.filter_by(username=username).first()
-        if user and check_password_hash(user.password, password):
+        if user and check_password_hash(user.password_hash, password):
             login_user(user) 
 
             # 跳转不同的 Dashboard
@@ -55,7 +55,7 @@ def register():
             return render_template('register.html')
 
         # 注册成功
-        new_user = User(username=username, password=generate_password_hash(password), role=role)
+        new_user = User(username=username, password_hash=generate_password_hash(password), role=role)
         db.session.add(new_user)
         db.session.commit()
         flash('注册成功，请登录', 'success')
