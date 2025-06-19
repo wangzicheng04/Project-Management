@@ -8,6 +8,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
     <style>
         body, html {
             height: 100%;
@@ -298,6 +301,42 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="card mt-4">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="bi bi-table me-2 text-primary"></i>全国水质监测数据
+                        </h5>
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="row mb-3 gx-2 align-items-center">
+                            <div class="col-md-auto">
+                                <small class="text-muted">快速筛选:</small>
+                            </div>
+                            <div class="col-md-3">
+                                <select id="provinceSelect" class="form-select form-select-sm" aria-label="按省份筛选">
+                                    <option value="">所有省份</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <select id="basinSelect" class="form-select form-select-sm" aria-label="按流域筛选">
+                                    <option value="">所有流域</option>
+                                </select>
+                            </div>
+                            </div>
+
+                        <div class="table-responsive">
+                            <table id="waterTable" class="table table-striped table-bordered table-hover" style="width:100%">
+                                <thead></thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+
                 <div class="row mb-3">
                     <div class="col-md-12">
                         <div class="card text-white bg-info mb-3">
@@ -520,6 +559,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="js/auth.js"></script>
     <script src="/static/dashboard.js"></script>
+
     <script>
         // 设备状态图表初始化
         const progressRing = document.querySelector('.progress-ring');
@@ -538,6 +578,92 @@
                     backgroundColor: ['#4dc9f6', '#f67019', '#f53794', '#537bc4']
                 }]
             }
+        });
+    </script>
+    
+    <script>
+        let table;
+        function loadWaterQualityTable(province = '', basin = '') {
+            let url = '/api/water_quality_data';
+            const params = [];
+            if (province) params.push(`province=${encodeURIComponent(province)}`);
+            if (basin) params.push(`basin=${encodeURIComponent(basin)}`);
+            if (params.length > 0) url += '?' + params.join('&');
+
+            fetch(url).then(res => res.json()).then(json => {
+                const data = json.data || json;
+                if (!Array.isArray(data) || data.length === 0) {
+                    if ($.fn.DataTable.isDataTable('#waterTable')) {
+                        $('#waterTable').DataTable().clear().draw();
+                    }
+                    alert('无数据可展示');
+                    return;
+                }
+                const columns = Object.keys(data[0]).map(key => ({
+                    title: key,
+                    data: key
+                }));
+                if ($.fn.DataTable.isDataTable('#waterTable')) {
+                    $('#waterTable').DataTable().clear().destroy();
+                    $('#waterTable thead').empty();
+                    $('#waterTable tbody').empty();
+                }
+                table = $('#waterTable').DataTable({
+                    data: data,
+                    columns: columns,
+                    dom: 'Brtip',
+                    scrollX: true,
+                    pageLength: 10,
+                    language: {
+                        url: "//cdn.datatables.net/plug-ins/1.13.4/i18n/zh-CN.json"
+                    }
+                });
+            }).catch(error => {
+                console.error('加载数据失败', error);
+                alert('获取水质数据失败，请检查后端接口或网络连接');
+            });
+        }
+
+        function loadProvinces() {
+            fetch('/api/provinces').then(res => res.json()).then(provinces => {
+                $('#provinceSelect').empty().append('<option value="">选择省份</option>');
+                provinces.forEach(p => $('#provinceSelect').append(`<option value="${p}">${p}</option>`));
+            });
+        }
+
+        function loadBasins(province) {
+            let url = '/api/basins';
+            if (province) url += `?province=${encodeURIComponent(province)}`;
+            fetch(url).then(res => res.json()).then(basins => {
+                $('#basinSelect').empty().append('<option value="">选择流域</option>');
+                basins.forEach(b => $('#basinSelect').append(`<option value="${b}">${b}</option>`));
+            });
+        }
+
+        $(document).ready(function () {
+            loadProvinces();
+            loadBasins();
+
+            // 省份变更时加载流域
+            $('#provinceSelect').on('change', function() {
+                const province = $(this).val();
+                loadBasins(province);
+                loadWaterQualityTable(province, '');
+            });
+
+            // 流域变更时加载表格
+            $('#basinSelect').on('change', function() {
+                const province = $('#provinceSelect').val();
+                const basin = $(this).val();
+                loadWaterQualityTable(province, basin);
+            });
+
+            // 初始加载全部数据
+            loadWaterQualityTable();
+
+            $('#exportBtn').on('click', () => {
+                if (table) table.button('.buttons-excel').trigger();
+            });
         });
     </script>
 </body>

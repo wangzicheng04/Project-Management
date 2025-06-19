@@ -21,9 +21,11 @@ def create_app():
     from .routes import auth_bp
     from .routes import main_bp
     from .routes import weather_bp  # 添加天气蓝图导入
+    from .routes.water_data import data_bp
     
     app.register_blueprint(auth_bp)
     app.register_blueprint(main_bp)
     app.register_blueprint(weather_bp)  # 注册天气蓝图
+    app.register_blueprint(data_bp)
 
     return app
