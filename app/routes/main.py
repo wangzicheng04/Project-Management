@@ -608,3 +608,8 @@ def generate_smart_response(question, context_data):
 请告诉我您想了解哪个方面的具体信息，我会基于实时数据为您提供专业的分析和建议。
 
 """
+
+@main_bp.route('/data_analysis')
+@login_required
+def data_analysis():
+    return render_template('data_analysis.html', username=current_user.username)
