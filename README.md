@@ -36,3 +36,11 @@ Smart-marine-ranch-visualization-system/
 ├── requirements.txt       # 依赖列表
 └── run.py                 # 启动脚本
 ```
+
+## 鱼类识别
+
+可在**picture_to_identify**文件夹中选取图片进行识别
+
+## 智能问答
+
+需要配置的API_key在对应的txt中

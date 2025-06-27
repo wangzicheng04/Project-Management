@@ -7,3 +7,12 @@ itsdangerous
 click
 markupsafe
 bootstrap-flask
+pandas
+numpy
+matplotlib
+seaborn
+plotly
+scipy
+scikit-learn
+openpyxl
+xlrd
