@@ -108,13 +108,13 @@
                 <div class="row">
                     {% set cards = [
                         {'color': 'primary', 'icon': 'people-fill', 'title': '用户管理', 'text': '查看、编辑或删除用户账户。', 'btn': '管理用户', 'link': url_for('main.manage_users_page')},
-                        {'color': 'warning', 'icon': 'file-earmark-text', 'title': '系统日志', 'text': '查看系统活动日志、操作历史和安全记录。', 'btn': '查看日志'},
-                        {'color': 'danger', 'icon': 'shield-lock', 'title': '权限审查', 'text': '分配角色、管理模块权限与访问控制。', 'btn': '设置权限'},
-                        {'color': 'info', 'icon': 'sliders', 'title': '系统设置', 'text': '配置平台参数，系统初始化或备份。', 'btn': '系统配置'},
-                        {'color': 'secondary', 'icon': 'upload', 'title': '数据导入', 'text': '上传并导入传感器或监控设备历史数据。', 'btn': '导入数据'},
-                        {'color': 'dark', 'icon': 'hdd-fill', 'title': '系统备份', 'text': '一键备份系统配置、数据库和日志信息。', 'btn': '立即备份'},
-                        {'color': 'success', 'icon': 'megaphone', 'title': '通知管理', 'text': '发布系统通知、警报推送和用户公告。', 'btn': '发送通知'},
-                        {'color': 'warning text-dark', 'icon': 'plug', 'title': '接口管理', 'text': '管理第三方系统对接与API访问权限。', 'btn': '接口配置'}
+                        {'color': 'warning', 'icon': 'file-earmark-text', 'title': '系统日志', 'text': '查看系统活动日志、操作历史和安全记录。', 'btn': '查看日志', 'link': url_for('main.manage_logs_page')},
+                        {'color': 'danger', 'icon': 'shield-lock', 'title': '权限审查', 'text': '分配角色、管理模块权限与访问控制。', 'btn': '设置权限', 'link': url_for('main.permission_management_page')},
+                        {'color': 'info', 'icon': 'sliders', 'title': '系统设置', 'text': '配置平台参数，系统初始化或备份。', 'btn': '系统配置', 'link': url_for('main.system_settings_page')},
+                        {'color': 'secondary', 'icon': 'upload', 'title': '数据导入', 'text': '上传并导入传感器或监控设备历史数据。', 'btn': '导入数据', 'link': url_for('main.data_import_page')},
+                        {'color': 'dark', 'icon': 'hdd-fill', 'title': '系统备份', 'text': '一键备份系统配置、数据库和日志信息。', 'btn': '立即备份', 'link': url_for('main.system_backup_page')},
+                        {'color': 'success', 'icon': 'megaphone', 'title': '通知管理', 'text': '发布系统通知、警报推送和用户公告。', 'btn': '发送通知', 'link': url_for('main.notification_management_page')},
+                        {'color': 'warning text-dark', 'icon': 'plug', 'title': '接口管理', 'text': '管理第三方系统对接与API访问权限。', 'btn': '接口配置', 'link': url_for('main.api_management_page')}
                     ] %}
 
                     {% for card in cards %}
