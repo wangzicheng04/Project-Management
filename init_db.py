@@ -71,9 +71,48 @@ with app.app_context():
 
     # 3. 初始化水质数据
     if not WaterQuality.query.first():
+        print("正在添加示例水质数据...")
+        import random
+        from datetime import datetime, timedelta
+        
+        # 生成示例数据
+        provinces = ['山东省', '浙江省', '广东省', '福建省', '海南省']
+        basins = ['黄河流域', '长江流域', '珠江流域', '东南沿海']
+        quality_levels = ['I', 'II', 'III', 'IV', 'V']
+        
+        sample_data = []
+        base_date = datetime(2021, 1, 1)
+        
+        for i in range(1000):  # 生成1000条示例数据
+            record = WaterQuality(
+                province=random.choice(provinces),
+                basin=random.choice(basins),
+                section_name=f'监测点_{i+1}',
+                monitor_time=base_date + timedelta(days=random.randint(0, 365)),
+                quality_level=random.choice(quality_levels),
+                temperature=round(random.uniform(15.0, 30.0), 1),
+                pH=round(random.uniform(6.5, 8.5), 2),
+                dissolved_oxygen=round(random.uniform(5.0, 12.0), 2),
+                conductivity=round(random.uniform(200, 800), 1),
+                turbidity=round(random.uniform(1.0, 50.0), 1),
+                permanganate_index=round(random.uniform(1.0, 10.0), 2),
+                ammonia_nitrogen=round(random.uniform(0.1, 2.0), 2),
+                total_phosphorus=round(random.uniform(0.01, 0.5), 3),
+                total_nitrogen=round(random.uniform(0.5, 3.0), 2),
+                chlorophyll_a=round(random.uniform(1.0, 20.0), 1),
+                algae_density=round(random.uniform(100, 1000), 0),
+                station_status='正常'
+            )
+            sample_data.append(record)
+        
+        db.session.add_all(sample_data)
+        db.session.commit()
+        print(f"已添加 {len(sample_data)} 条示例水质数据")
+        
+        # 尝试从JSON文件导入额外数据
         base_dir = os.path.join('water_data', '水质数据')
         if not os.path.exists(base_dir):
-            print(f"水质数据目录不存在: {base_dir}，无法导入。")
+            print(f"水质数据目录不存在: {base_dir}，跳过文件导入。")
         else:
             all_records_to_add = []
             for month_folder in os.listdir(base_dir):
@@ -96,7 +135,7 @@ with app.app_context():
                                 if not row or len(row) < 17: continue
                                 monitor_time_obj = parse_monitoring_time(row[3], year_str)
                                 if not monitor_time_obj: continue
-
+        
                                 record = WaterQuality(
                                     province=row[0], basin=row[1],
                                     section_name=BeautifulSoup(row[2], 'html.parser').get_text(strip=True) if row[2] else None,
@@ -111,14 +150,12 @@ with app.app_context():
                                 all_records_to_add.append(record)
                         except Exception as e:
                             print(f"    ! 处理文件 {fname} 时发生错误: {e}")
-            
+                
             if all_records_to_add:
                 print(f"准备将 {len(all_records_to_add)} 条数据存入数据库...")
                 db.session.bulk_save_objects(all_records_to_add)
                 db.session.commit()
                 print("水质数据导入成功！")
-            else:
-                print("没有找到可导入的水质数据。")
     else:
         print("水质数据已存在，跳过导入。")
 

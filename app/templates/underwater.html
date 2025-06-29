@@ -657,3 +657,38 @@
     <script src="js/underwater.js"></script>
 </body>
 </html>
+
+// 在文件末尾添加以下JavaScript代码
+function loadDeviceStatus() {
+    // 模拟设备状态数据
+    const devices = [
+        { id: 'UW001', name: '水质监测器', status: '正常', battery: '85%' },
+        { id: 'UW002', name: '水下摄像头', status: '正常', battery: '72%' },
+        { id: 'UW003', name: '水温监测器', status: '警告', battery: '45%' },
+        { id: 'UW004', name: '水下照明', status: '故障', battery: '0%' },
+        { id: 'UW005', name: '水下机器人', status: '正常', battery: '93%' }
+    ];
+    
+    const tbody = document.querySelector('#deviceStatusTable tbody');
+    if (tbody) {
+        tbody.innerHTML = '';
+        devices.forEach(device => {
+            const row = document.createElement('tr');
+            const statusClass = device.status === '正常' ? 'success' : 
+                               device.status === '警告' ? 'warning' : 'danger';
+            
+            row.innerHTML = `
+                <td>${device.id}</td>
+                <td>${device.name}</td>
+                <td><span class="badge bg-${statusClass}">${device.status}</span></td>
+                <td>${device.battery}</td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+}
+
+// 页面加载时调用
+document.addEventListener('DOMContentLoaded', function() {
+    loadDeviceStatus();
+});

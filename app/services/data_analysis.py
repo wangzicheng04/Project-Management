@@ -97,7 +97,7 @@ class DataAnalysisService:
         
         data = query.all()
         
-        if len(data) < 2:
+        if len(data) < 10:  # 增加最小数据量要求
             return None
         
         # 转换为DataFrame
@@ -115,17 +115,63 @@ class DataAnalysisService:
             'algae_density': d.algae_density
         } for d in data])
         
-        # 计算相关性矩阵
-        correlation_matrix = df.corr()
+        # 删除空值过多的列和行
+        df_clean = df.dropna(thresh=len(df.columns)*0.7, axis=0)  # 保留至少70%非空值的行
+        df_clean = df_clean.dropna(thresh=len(df_clean)*0.5, axis=1)  # 保留至少50%非空值的列
         
-        # 生成热力图
+        if df_clean.empty or len(df_clean.columns) < 3:
+            return None
+        
+        # 参数中文标签映射
+        label_mapping = {
+            'temperature': '温度',
+            'pH': 'pH值',
+            'dissolved_oxygen': '溶解氧',
+            'conductivity': '电导率',
+            'turbidity': '浊度',
+            'permanganate_index': '高锰酸盐指数',
+            'ammonia_nitrogen': '氨氮',
+            'total_phosphorus': '总磷',
+            'total_nitrogen': '总氮',
+            'chlorophyll_a': '叶绿素a',
+            'algae_density': '藻密度'
+        }
+        
+        # 重命名列为中文
+        df_clean_renamed = df_clean.rename(columns=label_mapping)
+        
+        # 计算相关性矩阵
+        correlation_matrix = df_clean_renamed.corr()
+        
+        # 生成美化的热力图
         fig = px.imshow(correlation_matrix, 
-                       text_auto=True, 
+                       text_auto='.3f',  # 显示3位小数
                        aspect="auto",
-                       title="水质参数相关性分析")
+                       title="水质参数相关性分析",
+                       color_continuous_scale='RdYlBu_r',  # 更直观的配色
+                       zmin=-1, zmax=1)
+        
+        # 美化布局
+        fig.update_layout(
+            title={
+                'text': '水质参数相关性分析',
+                'x': 0.5,
+                'xanchor': 'center',
+                'font': {'size': 20, 'color': '#2c3e50', 'family': 'Microsoft YaHei'}
+            },
+            font={'family': 'Microsoft YaHei, Arial, sans-serif', 'size': 12},
+            plot_bgcolor='white',
+            paper_bgcolor='white',
+            margin=dict(l=100, r=100, t=100, b=100),
+            width=800,
+            height=600
+        )
+        
+        # 添加颜色条标题
+        fig.update_coloraxes(colorbar_title="相关性系数")
         
         return json.dumps(fig, cls=PlotlyJSONEncoder)
-    
+
     def generate_trend_analysis(self, parameter, start_date=None, end_date=None, province=None):
         """生成趋势分析"""
         query = WaterQuality.query
@@ -147,24 +193,86 @@ class DataAnalysisService:
         values = [getattr(d, parameter) for d in data if getattr(d, parameter) is not None]
         valid_dates = [dates[i] for i, d in enumerate(data) if getattr(d, parameter) is not None]
         
-        if len(values) < 2:
+        if len(values) < 5:  # 增加最小数据点要求
             return None
         
-        # 创建趋势图
+        # 创建美化的趋势图
         fig = go.Figure()
-        fig.add_trace(go.Scatter(x=valid_dates, y=values, mode='lines+markers', name=parameter))
+        
+        # 主数据线
+        fig.add_trace(go.Scatter(
+            x=valid_dates, 
+            y=values, 
+            mode='lines+markers',
+            name=f'{parameter}实测值',
+            line=dict(color='#3498db', width=2),
+            marker=dict(size=6, color='#3498db')
+        ))
         
         # 添加趋势线
         if len(values) > 1:
             z = np.polyfit(range(len(values)), values, 1)
             p = np.poly1d(z)
-            fig.add_trace(go.Scatter(x=valid_dates, y=p(range(len(values))), 
-                                   mode='lines', name='趋势线', line=dict(dash='dash')))
+            trend_values = p(range(len(values)))
+            
+            fig.add_trace(go.Scatter(
+                x=valid_dates, 
+                y=trend_values, 
+                mode='lines', 
+                name='趋势线', 
+                line=dict(dash='dash', color='#e74c3c', width=2)
+            ))
+            
+            # 添加置信区间
+            residuals = np.array(values) - trend_values
+            std_residuals = np.std(residuals)
+            upper_bound = trend_values + 1.96 * std_residuals
+            lower_bound = trend_values - 1.96 * std_residuals
+            
+            fig.add_trace(go.Scatter(
+                x=valid_dates + valid_dates[::-1],
+                y=list(upper_bound) + list(lower_bound[::-1]),
+                fill='toself',
+                fillcolor='rgba(231, 76, 60, 0.1)',
+                line=dict(color='rgba(255,255,255,0)'),
+                name='95%置信区间',
+                showlegend=True
+            ))
         
-        fig.update_layout(title=f'{parameter}趋势分析', xaxis_title='时间', yaxis_title=parameter)
+        # 美化布局
+        parameter_names = {
+            'pH': 'pH值',
+            'dissolved_oxygen': '溶解氧 (mg/L)',
+            'temperature': '温度 (°C)',
+            'turbidity': '浊度 (NTU)',
+            'conductivity': '电导率 (μS/cm)'
+        }
+        
+        fig.update_layout(
+            title={
+                'text': f'{parameter_names.get(parameter, parameter)}趋势分析',
+                'x': 0.5,
+                'xanchor': 'center',
+                'font': {'size': 18, 'color': '#2c3e50'}
+            },
+            xaxis_title='监测时间',
+            yaxis_title=parameter_names.get(parameter, parameter),
+            font={'family': 'Arial, sans-serif'},
+            plot_bgcolor='white',
+            paper_bgcolor='white',
+            margin=dict(l=80, r=80, t=80, b=80),
+            legend=dict(
+                orientation="h",
+                yanchor="bottom",
+                y=1.02,
+                xanchor="right",
+                x=1
+            ),
+            hovermode='x unified'
+        )
         
         return json.dumps(fig, cls=PlotlyJSONEncoder)
-    
+
     def perform_clustering_analysis(self, n_clusters=3):
         """执行聚类分析"""
         # 获取最近一个月的数据
@@ -176,7 +284,7 @@ class DataAnalysisService:
             WaterQuality.monitor_time <= end_date
         ).all()
         
-        if len(data) < n_clusters:
+        if len(data) < n_clusters * 3:  # 确保每个聚类至少有3个点
             return None
         
         # 准备数据
@@ -190,30 +298,79 @@ class DataAnalysisService:
         # 删除包含NaN的行
         df_clean = df.dropna()
         
-        if len(df_clean) < n_clusters:
+        if len(df_clean) < n_clusters * 3:
             return None
         
         # 标准化数据
         X_scaled = self.scaler.fit_transform(df_clean)
         
         # K-means聚类
-        kmeans = KMeans(n_clusters=n_clusters, random_state=42)
+        kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init=10)
         clusters = kmeans.fit_predict(X_scaled)
         
         # PCA降维用于可视化
         pca = PCA(n_components=2)
         X_pca = pca.fit_transform(X_scaled)
         
-        # 创建散点图
-        fig = px.scatter(x=X_pca[:, 0], y=X_pca[:, 1], color=clusters,
-                        title='水质数据聚类分析（PCA降维）',
-                        labels={'x': 'PC1', 'y': 'PC2'})
+        # 创建美化的散点图
+        colors = ['#3498db', '#e74c3c', '#2ecc71', '#f39c12', '#9b59b6', '#1abc9c']
         
-        return {
-            'plot': json.dumps(fig, cls=PlotlyJSONEncoder),
-            'cluster_centers': kmeans.cluster_centers_.tolist(),
-            'explained_variance_ratio': pca.explained_variance_ratio_.tolist()
-        }
+        fig = go.Figure()
+        
+        for i in range(n_clusters):
+            cluster_mask = clusters == i
+            fig.add_trace(go.Scatter(
+                x=X_pca[cluster_mask, 0],
+                y=X_pca[cluster_mask, 1],
+                mode='markers',
+                name=f'聚类 {i+1}',
+                marker=dict(
+                    size=8,
+                    color=colors[i % len(colors)],
+                    opacity=0.7,
+                    line=dict(width=1, color='white')
+                )
+            ))
+        
+        # 添加聚类中心
+        centers_pca = pca.transform(kmeans.cluster_centers_)
+        fig.add_trace(go.Scatter(
+            x=centers_pca[:, 0],
+            y=centers_pca[:, 1],
+            mode='markers',
+            name='聚类中心',
+            marker=dict(
+                size=15,
+                color='black',
+                symbol='x',
+                line=dict(width=2, color='white')
+            )
+        ))
+        
+        # 美化布局
+        fig.update_layout(
+            title={
+                'text': '水质数据聚类分析（PCA降维可视化）',
+                'x': 0.5,
+                'xanchor': 'center',
+                'font': {'size': 18, 'color': '#2c3e50'}
+            },
+            xaxis_title=f'第一主成分 (解释方差: {pca.explained_variance_ratio_[0]:.1%})',
+            yaxis_title=f'第二主成分 (解释方差: {pca.explained_variance_ratio_[1]:.1%})',
+            font={'family': 'Arial, sans-serif'},
+            plot_bgcolor='white',
+            paper_bgcolor='white',
+            margin=dict(l=80, r=80, t=80, b=80),
+            legend=dict(
+                orientation="v",
+                yanchor="top",
+                y=1,
+                xanchor="left",
+                x=1.02
+            )
+        )
+        
+        return json.dumps(fig, cls=PlotlyJSONEncoder)  # 直接返回plot JSON字符串
     
     def generate_quality_report(self, start_date=None, end_date=None):
         """生成水质报告"""

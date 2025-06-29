@@ -103,12 +103,12 @@ def get_clustering():
         result = data_service.perform_clustering_analysis(n_clusters)
         
         if result:
-            return jsonify({'success': True, 'data': result})
+            return jsonify({'success': True, 'plot': result})  # 修改返回格式
         else:
-            return jsonify({'success': False, 'message': '数据不足，无法进行聚类分析'})
+            return jsonify({'success': False, 'message': '数据不足，无法进行聚类分析（需要至少{}个有效数据点）'.format(n_clusters * 3)})
     
     except Exception as e:
-        return jsonify({'success': False, 'message': str(e)}), 500
+        return jsonify({'success': False, 'message': f'聚类分析失败: {str(e)}'}), 500
 
 @analysis_bp.route('/api/data/report')
 @login_required
