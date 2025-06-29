@@ -352,6 +352,8 @@
                                 const result = await response.json();
                                 const config = getDataTypeConfig(dataType);
 
+                                //console.log('从API接收到的总条数:', result.tableData.length);
+
                                 // 更新图表
                                 waterQualityChart.data.labels = result.labels;
                                 waterQualityChart.data.datasets[0].label = config.label;

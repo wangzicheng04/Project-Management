@@ -176,6 +176,22 @@ def water_quality_history_api():
         'data': data_points,
         'tableData': table_data
     })
+    
+@main_bp.route('/admin/logs')
+def manage_logs_page():
+    """
+    渲染系统日志页面。
+    """
+    # 在实际应用中，您会从数据库或日志文件中查询日志
+    # 这里我们使用一些模拟数据作为示例
+    mock_logs = [
+        {'id': 1, 'timestamp': '2023-10-27 10:00:00', 'level': 'INFO', 'message': '用户 admin 登录成功。'},
+        {'id': 2, 'timestamp': '2023-10-27 10:05:12', 'level': 'WARNING', 'message': '数据库连接延迟超过 500ms。'},
+        {'id': 3, 'timestamp': '2023-10-27 10:10:25', 'level': 'ERROR', 'message': '无法处理来自传感器 #102 的数据。'},
+        {'id': 4, 'timestamp': '2023-10-27 10:15:03', 'level': 'INFO', 'message': '生成了每周数据报告。'}
+    ]
+    username = session.get('username', '游客')
+    return render_template('system_logs.html', username=username, logs=mock_logs)
 
 @main_bp.route('/api/doubao-chat', methods=['POST'])
 @login_required
@@ -613,3 +629,430 @@ def generate_smart_response(question, context_data):
 @login_required
 def data_analysis():
     return render_template('data_analysis.html', username=current_user.username)
+
+# ==================== 新增管理员功能路由 ====================
+
+# 权限管理
+@main_bp.route('/admin/permissions')
+@login_required
+def permission_management_page():
+    if current_user.role != 'admin':
+        flash('您没有权限访问此页面。', 'warning')
+        return redirect(url_for('main.user_dashboard'))
+    
+    users = User.query.all()
+    # 模拟审计日志数据
+    audit_logs = [
+        {'timestamp': '2023-12-01 10:30:00', 'operator': 'admin', 'target_user': 'user1', 'action': '提升为管理员', 'ip_address': '192.168.1.100'},
+        {'timestamp': '2023-12-01 09:15:00', 'operator': 'admin', 'target_user': 'user2', 'action': '降级为普通用户', 'ip_address': '192.168.1.100'},
+    ]
+    return render_template('permission_management.html', username=current_user.username, users=users, audit_logs=audit_logs)
+
+@main_bp.route('/admin/permissions/update_role/<int:user_id>', methods=['POST'])
+@login_required
+def update_user_role(user_id):
+    if current_user.role != 'admin':
+        flash('操作失败：权限不足。', 'danger')
+        return redirect(url_for('main.permission_management_page'))
+    
+    user = User.query.get_or_404(user_id)
+    new_role = request.form.get('role')
+    
+    if user.username == 'admin':
+        flash('不能修改主管理员角色！', 'danger')
+        return redirect(url_for('main.permission_management_page'))
+    
+    if new_role in ['user', 'admin']:
+        user.role = new_role
+        db.session.commit()
+        flash(f'用户 {user.username} 角色已更新为 {new_role}。', 'success')
+    else:
+        flash('无效的角色类型。', 'danger')
+    
+    return redirect(url_for('main.permission_management_page'))
+
+@main_bp.route('/admin/permissions/update_module', methods=['POST'])
+@login_required
+def update_module_permissions():
+    if current_user.role != 'admin':
+        flash('操作失败：权限不足。', 'danger')
+        return redirect(url_for('main.permission_management_page'))
+    
+    # 这里应该实现模块权限的更新逻辑
+    flash('模块权限设置已更新。', 'success')
+    return redirect(url_for('main.permission_management_page'))
+
+# 系统设置
+@main_bp.route('/admin/settings')
+@login_required
+def system_settings_page():
+    if current_user.role != 'admin':
+        flash('您没有权限访问此页面。', 'warning')
+        return redirect(url_for('main.user_dashboard'))
+    
+    # 模拟系统配置数据
+    config = {
+        'system_name': '海洋管理系统',
+        'data_retention_days': 365,
+        'session_timeout': 30,
+        'max_login_attempts': 5,
+        'data_collection_interval': 300,
+        'alert_threshold_temp_min': 15.0,
+        'alert_threshold_temp_max': 30.0,
+        'alert_threshold_ph_min': 6.5,
+        'alert_threshold_ph_max': 8.5,
+        'enable_alerts': True
+    }
+    
+    # 模拟系统信息
+    system_info = {
+        'version': 'v1.2.0',
+        'uptime': '15天 8小时 32分钟',
+        'cpu_usage': 45,
+        'memory_usage': 62,
+        'disk_usage': 78,
+        'db_size': '256 MB'
+    }
+    
+    return render_template('system_settings.html', username=current_user.username, config=config, system_info=system_info)
+
+@main_bp.route('/admin/settings/update_config', methods=['POST'])
+@login_required
+def update_system_config():
+    if current_user.role != 'admin':
+        flash('操作失败：权限不足。', 'danger')
+        return redirect(url_for('main.system_settings_page'))
+    
+    # 这里应该实现系统配置的更新逻辑
+    flash('系统配置已更新。', 'success')
+    return redirect(url_for('main.system_settings_page'))
+
+@main_bp.route('/admin/settings/update_monitoring', methods=['POST'])
+@login_required
+def update_monitoring_config():
+    if current_user.role != 'admin':
+        flash('操作失败：权限不足。', 'danger')
+        return redirect(url_for('main.system_settings_page'))
+    
+    # 这里应该实现监控配置的更新逻辑
+    flash('监控配置已更新。', 'success')
+    return redirect(url_for('main.system_settings_page'))
+
+@main_bp.route('/admin/settings/clear_cache', methods=['POST'])
+@login_required
+def clear_cache():
+    if current_user.role != 'admin':
+        flash('操作失败：权限不足。', 'danger')
+        return redirect(url_for('main.system_settings_page'))
+    
+    flash('系统缓存已清理。', 'success')
+    return redirect(url_for('main.system_settings_page'))
+
+@main_bp.route('/admin/settings/optimize_db', methods=['POST'])
+@login_required
+def optimize_database():
+    if current_user.role != 'admin':
+        flash('操作失败：权限不足。', 'danger')
+        return redirect(url_for('main.system_settings_page'))
+    
+    flash('数据库优化完成。', 'success')
+    return redirect(url_for('main.system_settings_page'))
+
+@main_bp.route('/admin/settings/restart_services', methods=['POST'])
+@login_required
+def restart_services():
+    if current_user.role != 'admin':
+        flash('操作失败：权限不足。', 'danger')
+        return redirect(url_for('main.system_settings_page'))
+    
+    flash('系统服务重启完成。', 'success')
+    return redirect(url_for('main.system_settings_page'))
+
+# 数据导入
+@main_bp.route('/admin/data_import')
+@login_required
+def data_import_page():
+    if current_user.role != 'admin':
+        flash('您没有权限访问此页面。', 'warning')
+        return redirect(url_for('main.user_dashboard'))
+    
+    # 模拟导入历史数据
+    import_history = [
+        {'filename': 'water_quality_20231201.csv', 'timestamp': '2023-12-01 14:30:00', 'status': 'success'},
+        {'filename': 'weather_data_20231130.xlsx', 'timestamp': '2023-11-30 16:45:00', 'status': 'success'},
+        {'filename': 'equipment_logs_20231129.json', 'timestamp': '2023-11-29 09:15:00', 'status': 'failed'},
+    ]
+    
+    return render_template('data_import.html', username=current_user.username, import_history=import_history)
+
+@main_bp.route('/admin/data_import/upload', methods=['POST'])
+@login_required
+def upload_data():
+    if current_user.role != 'admin':
+        flash('操作失败：权限不足。', 'danger')
+        return redirect(url_for('main.data_import_page'))
+    
+    if 'data_file' not in request.files:
+        flash('请选择要上传的文件。', 'warning')
+        return redirect(url_for('main.data_import_page'))
+    
+    file = request.files['data_file']
+    if file.filename == '':
+        flash('请选择要上传的文件。', 'warning')
+        return redirect(url_for('main.data_import_page'))
+    
+    # 这里应该实现文件上传和数据导入逻辑
+    flash(f'文件 {file.filename} 上传成功，数据导入完成。', 'success')
+    return redirect(url_for('main.data_import_page'))
+
+# 系统备份
+@main_bp.route('/admin/backup')
+@login_required
+def system_backup_page():
+    if current_user.role != 'admin':
+        flash('您没有权限访问此页面。', 'warning')
+        return redirect(url_for('main.user_dashboard'))
+    
+    # 模拟备份设置
+    settings = {
+        'auto_backup': 'weekly',
+        'backup_time': '02:00',
+        'retention_days': 30,
+        'storage_path': '/backups'
+    }
+    
+    # 模拟备份历史
+    backups = [
+        {'id': 1, 'name': '系统完整备份_20231201', 'created_at': '2023-12-01 02:00:00', 'size': '1.2 GB', 'status': 'completed', 'type': 'auto'},
+        {'id': 2, 'name': '手动备份_20231130', 'created_at': '2023-11-30 15:30:00', 'size': '1.1 GB', 'status': 'completed', 'type': 'manual'},
+        {'id': 3, 'name': '系统完整备份_20231123', 'created_at': '2023-11-23 02:00:00', 'size': '1.0 GB', 'status': 'completed', 'type': 'auto'},
+    ]
+    
+    return render_template('system_backup.html', username=current_user.username, settings=settings, backups=backups)
+
+@main_bp.route('/admin/backup/create', methods=['POST'])
+@login_required
+def create_backup():
+    if current_user.role != 'admin':
+        flash('操作失败：权限不足。', 'danger')
+        return redirect(url_for('main.system_backup_page'))
+    
+    # 这里应该实现备份创建逻辑
+    flash('系统备份创建成功。', 'success')
+    return redirect(url_for('main.system_backup_page'))
+
+@main_bp.route('/admin/backup/restore/<int:backup_id>')
+@login_required
+def restore_backup(backup_id):
+    if current_user.role != 'admin':
+        flash('操作失败：权限不足。', 'danger')
+        return redirect(url_for('main.system_backup_page'))
+    
+    # 这里应该实现备份恢复逻辑
+    flash('系统备份恢复成功。', 'success')
+    return redirect(url_for('main.system_backup_page'))
+
+@main_bp.route('/admin/backup/download/<int:backup_id>')
+@login_required
+def download_backup(backup_id):
+    if current_user.role != 'admin':
+        return "无权限", 403
+    
+    # 这里应该实现备份下载逻辑
+    return "备份下载功能待实现", 200
+
+@main_bp.route('/admin/backup/delete/<int:backup_id>', methods=['POST'])
+@login_required
+def delete_backup(backup_id):
+    if current_user.role != 'admin':
+        return jsonify({'success': False, 'message': '权限不足'}), 403
+    
+    # 这里应该实现备份删除逻辑
+    return jsonify({'success': True, 'message': '备份删除成功'})
+
+@main_bp.route('/admin/backup/update_settings', methods=['POST'])
+@login_required
+def update_backup_settings():
+    if current_user.role != 'admin':
+        flash('操作失败：权限不足。', 'danger')
+        return redirect(url_for('main.system_backup_page'))
+    
+    # 这里应该实现备份设置更新逻辑
+    flash('备份设置已更新。', 'success')
+    return redirect(url_for('main.system_backup_page'))
+
+# 通知管理
+@main_bp.route('/admin/notifications')
+@login_required
+def notification_management_page():
+    if current_user.role != 'admin':
+        flash('您没有权限访问此页面。', 'warning')
+        return redirect(url_for('main.user_dashboard'))
+    
+    users = User.query.all()
+    
+    # 模拟通知模板
+    templates = [
+        {'id': 1, 'name': '系统维护通知', 'description': '用于系统维护时的通知模板'},
+        {'id': 2, 'name': '水质警报通知', 'description': '用于水质异常时的警报通知'},
+        {'id': 3, 'name': '设备故障通知', 'description': '用于设备故障时的通知模板'},
+    ]
+    
+    # 模拟通知历史
+    notifications = [
+        {'id': 1, 'title': '系统维护通知', 'content': '系统将于今晚进行维护...', 'type': 'maintenance', 'priority': 'normal', 'sent_at': '2023-12-01 10:00:00', 'status': 'sent', 'recipient_count': 15},
+        {'id': 2, 'title': '水质异常警报', 'content': '检测到水质参数异常...', 'type': 'alert', 'priority': 'high', 'sent_at': '2023-11-30 14:30:00', 'status': 'sent', 'recipient_count': 8},
+        {'id': 3, 'title': '设备故障通知', 'content': '传感器设备出现故障...', 'type': 'alert', 'priority': 'urgent', 'sent_at': '2023-11-29 09:15:00', 'status': 'sending', 'recipient_count': 5},
+    ]
+    
+    return render_template('notification_management.html', username=current_user.username, users=users, templates=templates, notifications=notifications)
+
+@main_bp.route('/admin/notifications/send', methods=['POST'])
+@login_required
+def send_notification():
+    if current_user.role != 'admin':
+        flash('操作失败：权限不足。', 'danger')
+        return redirect(url_for('main.notification_management_page'))
+    
+    # 这里应该实现通知发送逻辑
+    flash('通知发送成功。', 'success')
+    return redirect(url_for('main.notification_management_page'))
+
+@main_bp.route('/admin/notifications/template', methods=['POST'])
+@login_required
+def save_notification_template():
+    if current_user.role != 'admin':
+        return jsonify({'success': False, 'message': '权限不足'}), 403
+    
+    # 这里应该实现模板保存逻辑
+    return jsonify({'success': True, 'message': '模板保存成功'})
+
+@main_bp.route('/admin/notifications/template/<int:template_id>')
+@login_required
+def get_notification_template(template_id):
+    if current_user.role != 'admin':
+        return jsonify({'success': False, 'message': '权限不足'}), 403
+    
+    # 这里应该实现模板获取逻辑
+    template = {
+        'type': 'maintenance',
+        'priority': 'normal',
+        'title': '系统维护通知',
+        'content': '系统将于今晚进行维护，请提前做好准备。'
+    }
+    return jsonify(template)
+
+@main_bp.route('/admin/notifications/template/<int:template_id>', methods=['DELETE'])
+@login_required
+def delete_notification_template(template_id):
+    if current_user.role != 'admin':
+        return jsonify({'success': False, 'message': '权限不足'}), 403
+    
+    # 这里应该实现模板删除逻辑
+    return jsonify({'success': True, 'message': '模板删除成功'})
+
+@main_bp.route('/admin/notifications/resend/<int:notification_id>', methods=['POST'])
+@login_required
+def resend_notification(notification_id):
+    if current_user.role != 'admin':
+        return jsonify({'success': False, 'message': '权限不足'}), 403
+    
+    # 这里应该实现通知重新发送逻辑
+    return jsonify({'success': True, 'message': '通知重新发送成功'})
+
+@main_bp.route('/admin/notifications/delete/<int:notification_id>', methods=['DELETE'])
+@login_required
+def delete_notification(notification_id):
+    if current_user.role != 'admin':
+        return jsonify({'success': False, 'message': '权限不足'}), 403
+    
+    # 这里应该实现通知删除逻辑
+    return jsonify({'success': True, 'message': '通知删除成功'})
+
+# 接口管理
+@main_bp.route('/admin/api')
+@login_required
+def api_management_page():
+    if current_user.role != 'admin':
+        flash('您没有权限访问此页面。', 'warning')
+        return redirect(url_for('main.user_dashboard'))
+    
+    # 模拟API密钥
+    api_keys = [
+        {'id': 1, 'name': 'Web应用密钥', 'key': 'sk_test_1234567890abcdef', 'created_at': '2023-11-01 10:00:00', 'last_used': '2023-12-01 15:30:00', 'status': 'active', 'usage_count': 1250},
+        {'id': 2, 'name': '移动端密钥', 'key': 'sk_test_abcdef1234567890', 'created_at': '2023-11-15 14:20:00', 'last_used': '2023-11-30 09:45:00', 'status': 'active', 'usage_count': 890},
+        {'id': 3, 'name': '测试密钥', 'key': 'sk_test_9876543210fedcba', 'created_at': '2023-11-20 16:10:00', 'last_used': None, 'status': 'inactive', 'usage_count': 0},
+    ]
+    
+    # 模拟API配置
+    config = {
+        'rate_limit': 100,
+        'max_requests': 10,
+        'timeout': 30,
+        'enable_cors': True,
+        'enable_logging': True
+    }
+    
+    # 模拟API端点
+    endpoints = [
+        {'path': '/api/water_quality_history', 'method': 'GET', 'description': '获取水质历史数据', 'call_count': 1250, 'avg_response_time': 150},
+        {'path': '/api/doubao-chat', 'method': 'POST', 'description': '智能问答接口', 'call_count': 890, 'avg_response_time': 2000},
+        {'path': '/api/fish-recognition', 'method': 'POST', 'description': '鱼类识别接口', 'call_count': 456, 'avg_response_time': 3500},
+        {'path': '/api/weather_data', 'method': 'GET', 'description': '获取天气数据', 'call_count': 234, 'avg_response_time': 120},
+    ]
+    
+    # 模拟访问日志
+    access_logs = [
+        {'timestamp': '2023-12-01 15:30:00', 'ip_address': '192.168.1.100', 'api_key': 'sk_test_1234567890abcdef', 'method': 'GET', 'path': '/api/water_quality_history', 'status_code': 200, 'response_time': 150, 'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'},
+        {'timestamp': '2023-12-01 15:29:30', 'ip_address': '192.168.1.101', 'api_key': 'sk_test_abcdef1234567890', 'method': 'POST', 'path': '/api/doubao-chat', 'status_code': 200, 'response_time': 2100, 'user_agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15'},
+        {'timestamp': '2023-12-01 15:28:45', 'ip_address': '192.168.1.102', 'api_key': 'sk_test_1234567890abcdef', 'method': 'POST', 'path': '/api/fish-recognition', 'status_code': 400, 'response_time': 500, 'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'},
+    ]
+    
+    return render_template('api_management.html', username=current_user.username, api_keys=api_keys, config=config, endpoints=endpoints, access_logs=access_logs)
+
+@main_bp.route('/admin/api/generate-key', methods=['POST'])
+@login_required
+def generate_api_key():
+    if current_user.role != 'admin':
+        return jsonify({'success': False, 'message': '权限不足'}), 403
+    
+    # 这里应该实现API密钥生成逻辑
+    return jsonify({'success': True, 'message': 'API密钥生成成功'})
+
+@main_bp.route('/admin/api/regenerate-key/<int:key_id>', methods=['POST'])
+@login_required
+def regenerate_api_key(key_id):
+    if current_user.role != 'admin':
+        return jsonify({'success': False, 'message': '权限不足'}), 403
+    
+    # 这里应该实现API密钥重新生成逻辑
+    return jsonify({'success': True, 'message': 'API密钥重新生成成功'})
+
+@main_bp.route('/admin/api/delete-key/<int:key_id>', methods=['DELETE'])
+@login_required
+def delete_api_key(key_id):
+    if current_user.role != 'admin':
+        return jsonify({'success': False, 'message': '权限不足'}), 403
+    
+    # 这里应该实现API密钥删除逻辑
+    return jsonify({'success': True, 'message': 'API密钥删除成功'})
+
+@main_bp.route('/admin/api/update-config', methods=['POST'])
+@login_required
+def update_api_config():
+    if current_user.role != 'admin':
+        flash('操作失败：权限不足。', 'danger')
+        return redirect(url_for('main.api_management_page'))
+    
+    # 这里应该实现API配置更新逻辑
+    flash('API配置已更新。', 'success')
+    return redirect(url_for('main.api_management_page'))
+
+@main_bp.route('/admin/api/export-logs')
+@login_required
+def export_api_logs():
+    if current_user.role != 'admin':
+        return "无权限", 403
+    
+    # 这里应该实现日志导出逻辑
+    return "日志导出功能待实现", 200
